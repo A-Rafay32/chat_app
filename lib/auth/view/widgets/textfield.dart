@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 
-import '../../../contants.dart';
+import '../../../res/colors.dart';
 
 class CustomTextField extends StatefulWidget {
-  const CustomTextField(
-      {super.key, required this.hintText, required this.controller});
+  CustomTextField({
+    super.key,
+    required this.validator,
+    required this.hintText,
+    required this.controller,
+    this.autofillHints = const [AutofillHints.email],
+  });
   final TextEditingController controller;
   final String hintText;
+  final String? Function(String?)? validator;
+  Iterable<String>? autofillHints;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -31,7 +38,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-      child: TextField(
+      child: TextFormField(
         cursorColor: Colors.black,
         style: const TextStyle(color: Colors.black),
         controller: widget.controller,
@@ -44,9 +51,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
           focusedBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: primaryColor),
           ),
+          errorBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.red),
+          ),
           hintStyle: TextStyle(
               color: _focusNode.hasFocus ? primaryColor : Colors.grey),
         ),
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        autofillHints: widget.autofillHints,
+        validator: widget.validator,
       ),
     );
   }

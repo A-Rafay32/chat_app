@@ -1,11 +1,12 @@
-import 'package:chat_app/contants.dart';
-import 'package:chat_app/login/view/widgets/sign_in_options.dart';
-import 'package:chat_app/login/view/widgets/textfield.dart';
+import 'package:chat_app/res/colors.dart';
+import 'package:chat_app/auth/view/widgets/sign_in_options.dart';
+import 'package:chat_app/auth/view/widgets/textfield.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../sign_up.dart';
+import 'sign_up.dart';
 import '../view_model/auth.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -15,6 +16,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: secondaryColor,
       body: SizedBox(
         // padding: const EdgeInsets.only(right: 20),
@@ -45,11 +47,24 @@ class LoginScreen extends StatelessWidget {
                 height: 20,
               ),
               CustomTextField(
+                validator: (email) {
+                  return email != null &&
+                          !(EmailValidator.validate(email.toString()))
+                      ? "Enter a correct email"
+                      : null;
+                },
                 controller:
                     Provider.of<Auth>(context, listen: false).emailController,
                 hintText: "Email",
               ),
               CustomTextField(
+                validator: (password) {
+                  if (!RegExp(r'^[a-z A-Z 0-9]').hasMatch(password!) &&
+                      password.length < 8) {
+                    return "Passwords should be alphanumeric and 8 characters long";
+                  }
+                  return null;
+                },
                 controller:
                     Provider.of<Auth>(context, listen: false).passController,
                 hintText: "Password",

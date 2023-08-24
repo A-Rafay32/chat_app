@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../contants.dart';
+import '../../../res/colors.dart';
 
 class SignInOptions extends StatelessWidget {
   const SignInOptions({

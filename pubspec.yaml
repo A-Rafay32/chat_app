@@ -40,6 +40,8 @@ dependencies:
   firebase_auth: ^4.6.3
   grouped_list: ^5.1.2
   cloud_firestore: ^4.8.1
+  email_validator: ^2.1.17
+  shared_preferences: ^2.2.0
 
 dev_dependencies:
   flutter_test:
