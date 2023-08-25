@@ -1,6 +1,8 @@
 import 'package:chat_app/auth/helper.dart';
 import 'package:chat_app/auth/view/login.dart';
+import 'package:chat_app/auth/view/widget_tree.dart';
 import 'package:chat_app/core/view/home_screen.dart';
+import 'package:chat_app/core/viewmodel/database_view_model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -40,17 +42,22 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => Auth(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => Auth(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => DBViewModel(),
+        )
+      ],
       child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-            drawerTheme: const DrawerThemeData(scrimColor: Colors.transparent)),
-        title: 'Chat App',
-        home: Auth().isSignedIn != true
-            ? const LoginScreen()
-            : const HomeScreen(),
-      ),
-    );  
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+              drawerTheme:
+                  const DrawerThemeData(scrimColor: Colors.transparent)),
+          title: 'Chat App',
+          home: const WidgetTree()),
+    );
   }
 }

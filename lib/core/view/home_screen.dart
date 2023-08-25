@@ -1,4 +1,5 @@
 import 'package:chat_app/core/view/widgets/conversation_row.dart';
+import 'package:chat_app/core/view/widgets/custom_app_bar.dart';
 import 'package:chat_app/core/view/widgets/custom_drawer.dart';
 import 'package:chat_app/core/view/widgets/fav_contact_bar.dart';
 import 'package:chat_app/core/view/widgets/tab_navigation_bar.dart';
@@ -33,40 +34,10 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: const Color(0xFF171717),
       body: Stack(
         children: [
-          Column(
+          const Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 20, left: 5, right: 5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                        onPressed: () {
-                          // _globalKey.currentState!.openDrawer();
-                        },
-                        icon: const Icon(
-                          Icons.menu,
-                          color: Color.fromARGB(255, 149, 136, 136),
-                        )),
-                    //   TextField(
-                    //   controller: TextEditingController(),
-                    //  )
-                    // ,
-                    IconButton(
-                      onPressed: () {
-                        Provider.of<Auth>(context, listen: false).signOut();
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(color: Colors.white, Icons.search),
-                      // icon: const Icon(
-                      //   Icons.search,
-                      //   color: Colors.white,
-                      // )
-                    ),
-                  ],
-                ),
-              ),
-              const TabNavigationBar(fontSize: fontSize, width: width)
+              CustomAppBar(),
+              TabNavigationBar(fontSize: fontSize, width: width)
             ],
           ),
           const FavContactsBar(),
@@ -93,8 +64,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         message: 'Hello, how are you',
                         filename: 'img1.jpeg',
                         msgCount: 0,
-                        onTap: () {
-                          Database.getUser("Laura");
+                        onTap: () async {
+                          Map<String, dynamic> userMap =
+                              await Database.getUser("Laura");
                           print(Provider.of<Auth>(context, listen: false)
                                   .auth
                                   .currentUser
@@ -106,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       .currentUser
                                       ?.displayName ??
                                   "",
-                              userMap["name"]);
+                              "Laura");
                           Navigator.push(context, MaterialPageRoute(
                             builder: (context) {
                               return ChatScreen(
@@ -123,8 +95,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       message: 'Will you visit me',
                       filename: 'img2.jpeg',
                       msgCount: 2,
-                      onTap: () {
-                        Database.getUser("Kalya");
+                      onTap: () async {
+                        Map<String, dynamic> userMap =
+                            await Database.getUser("Kalya");
                         print(Provider.of<Auth>(context, listen: false)
                                 .auth
                                 .currentUser
@@ -136,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     .currentUser
                                     ?.displayName ??
                                 "",
-                            userMap["name"]);
+                            "Kalya");
                         Navigator.push(context, MaterialPageRoute(
                           builder: (context) {
                             return ChatScreen(
@@ -152,7 +125,35 @@ class _HomeScreenState extends State<HomeScreen> {
                     //     'Hellen', 'Are you with Kayla again', 'img5.jpeg', 0),
                     // ConversationRow(
                     //     'Louren', 'Barrow money please', 'img6.jpeg', 3),
-                    // ConversationRow('Tom', 'Hey, whatsup', 'img7.jpeg', 0),
+                    ConversationRow(
+                        name: 'Tom',
+                        message: 'Hey, whatsup',
+                        filename: 'img7.jpeg',
+                        msgCount: 0,
+                        onTap: () async {
+                          Map<String, dynamic> userMap =
+                              await Database.getUser("Tom");
+                          print(Provider.of<Auth>(context, listen: false)
+                                  .auth
+                                  .currentUser
+                                  ?.displayName ??
+                              "");
+                          String roomId = Database.chatRoomId(
+                              Provider.of<Auth>(context, listen: false)
+                                      .auth
+                                      .currentUser
+                                      ?.displayName ??
+                                  "",
+                              "Tom");
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (context) {
+                              return ChatScreen(
+                                chatRoomId: roomId,
+                                userMap: userMap,
+                              );
+                            },
+                          ));
+                        }),
                     // ConversationRow(
                     //     'Laura', 'Helle, how are you', 'img1.jpeg', 0),
                     // ConversationRow(

@@ -3,8 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../core/view/home_screen.dart';
-
 class Auth extends ChangeNotifier {
   TextEditingController passController = TextEditingController();
   TextEditingController emailController = TextEditingController();
@@ -12,6 +10,8 @@ class Auth extends ChangeNotifier {
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   FirebaseAuth auth = FirebaseAuth.instance;
+  static Stream<User?> authStateChanges =
+      FirebaseAuth.instance.authStateChanges();
 
   CollectionReference? usersCollection;
   User? user;
@@ -30,16 +30,16 @@ class Auth extends ChangeNotifier {
       // getUserSignedStatus in isSignedIn
       isSignedIn = await Helper.getUserSignedStatus();
 
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomeScreen(),
-          ));
+      // Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //       builder: (context) => const HomeScreen(),
+      //     ));
     } on FirebaseException catch (e) {
       print(e);
     }
 
-    notifyListeners();
+    // notifyListeners();
   }
 
   Future signUp(context) async {
@@ -70,16 +70,16 @@ class Auth extends ChangeNotifier {
             user?.updateDisplayName(nameController.text.trim());
           }).catchError((error) => print("failed to create user: $error"));
         }
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const HomeScreen(),
-            ));
+        // Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (context) => const HomeScreen(),
+        //     ));
       }
     } on FirebaseException catch (e) {
       print(e);
     }
-    notifyListeners();
+    // notifyListeners();
   }
 
   Future signOut() async {
@@ -95,6 +95,6 @@ class Auth extends ChangeNotifier {
     } on FirebaseException catch (e) {
       print(e);
     }
-    notifyListeners();
+    // notifyListeners();
   }
 }

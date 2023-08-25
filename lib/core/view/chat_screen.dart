@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:provider/provider.dart';
 
-import '../model/data/database.dart';
 import '../../res/colors.dart';
 import '../../auth/view_model/auth.dart';
+import '../model/data/database.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatRoomId;
@@ -24,16 +24,18 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
+    Database.getMessages(widget.chatRoomId);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
+    double h = MediaQuery.sizeOf(context).height;
+    double w = MediaQuery.sizeOf(context).width;
     return Scaffold(
       body: Container(
-        height: size.height,
-        width: size.width,
+        height: h,
+        width: w,
         color: backgroundColor,
         child: Stack(
           children: [
@@ -58,8 +60,8 @@ class _ChatScreenState extends State<ChatScreen> {
             Positioned(
                 top: 70,
                 child: Container(
-                  height: size.height * 0.9,
-                  width: size.width,
+                  height: h * 0.9,
+                  width: w,
                   decoration: const BoxDecoration(
                       color: chatBGColor,
                       borderRadius: BorderRadius.only(
@@ -87,27 +89,40 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       Expanded(
                         child: StreamBuilder<QuerySnapshot>(
-                            stream: Provider.of<Auth>(context, listen: false)
-                                .firestore
-                                .collection("chatroom")
-                                .doc(widget.chatRoomId)
-                                .collection("chats")
-                                .snapshots(),
+                            stream: Database.chats,
                             builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Column(
+                                  children: [
+                                    SizedBox(
+                                      height: h * 0.5,
+                                    ),
+                                    const SizedBox(
+                                      height: 30,
+                                      width: 30,
+                                      child: CircularProgressIndicator(
+                                          color: primaryColor),
+                                    ),
+                                  ],
+                                );
+                              }
                               if (snapshot.data != null) {
                                 return GroupedListView<QueryDocumentSnapshot,
-                                    DateTime>(
+                                    Timestamp>(
                                   padding: const EdgeInsets.all(8),
                                   elements: snapshot.data!.docs,
-                                  groupBy: (QueryDocumentSnapshot messages) {
-                                    Timestamp timestamp = messages["time"];
-                                    DateTime dateTime = timestamp.toDate();
-                                    int month = dateTime.month;
-                                    int day = dateTime.day;
-                                    int year = dateTime.year;
-                                    return DateTime(year, month, day);
-                                  },
-                                  order: GroupedListOrder.DESC,
+                                  groupBy: (element) => element["time"],
+
+                                  //     {r
+                                  //   Timestamp timestamp = messages["time"];
+                                  //   DateTime dateTime = timestamp.toDate();
+                                  //   int month = dateTime.month;
+                                  //   int day = dateTime.day;
+                                  //   int year = dateTime.year;
+                                  //   return DateTime(year, month, day);
+                                  // },
+                                  order: GroupedListOrder.ASC,
                                   groupHeaderBuilder:
                                       (QueryDocumentSnapshot messages) =>
                                           const SizedBox(),
@@ -165,8 +180,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Container(
-                            height: size.height * 0.06,
-                            width: size.width * 0.8,
+                            height: h * 0.06,
+                            width: w * 0.8,
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                             child: TextField(
                               style: const TextStyle(
@@ -208,6 +223,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                 color: primaryColor, shape: BoxShape.circle),
                             child: IconButton(
                                 onPressed: () {
+                                  // Provider.of<DBViewModel>(context,
+                                  //         listen: false)
                                   Database.onSendMessage(widget.chatRoomId);
                                 },
                                 icon: const Icon(

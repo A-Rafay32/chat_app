@@ -7,8 +7,12 @@ class Database {
   static FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   static CollectionReference usersCollection =
       FirebaseFirestore.instance.collection("users");
+  static CollectionReference chatRoomCollection =
+      FirebaseFirestore.instance.collection("chatroom");
 
   static TextEditingController msgController = TextEditingController();
+
+  static Stream<QuerySnapshot>? chats;
 
   static String chatRoomId(String user1, String user2) {
     if (user1[0].toLowerCase().codeUnits[0] >
@@ -19,11 +23,12 @@ class Database {
     }
   }
 
-  static void getUser(String name) async {
+  static Future<Map<String, dynamic>> getUser(String name) async {
     QuerySnapshot<Map<String, dynamic>> user = await firebaseFirestore
         .collection("users")
         .where("name", isEqualTo: name)
         .get();
+    return user.docs[0].data();
   }
 
   static void onSendMessage(String chatRoomId) async {
@@ -31,10 +36,10 @@ class Database {
       Map<String, dynamic> msgMap = {
         "sendBy": Auth().auth.currentUser?.displayName,
         "message": msgController.text.trim(),
-        "time": FieldValue.serverTimestamp(),
+        "time": Timestamp.now(),
       };
 
-      await Database.firebaseFirestore
+      await firebaseFirestore
           .collection("chatroom")
           .doc(chatRoomId)
           .collection("chats")
@@ -45,5 +50,13 @@ class Database {
     } else {
       print("Can't send empty messages");
     }
+  }
+
+  static void getMessages(String chatRoomId) {
+    chats = firebaseFirestore
+        .collection("chatroom")
+        .doc(chatRoomId)
+        .collection("chats")
+        .snapshots();
   }
 }
