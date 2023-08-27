@@ -5,25 +5,25 @@ class Group {
   String groupImg;
   String groupName;
   String groupRoomId;
-  List<dynamic> users;
-  Message recentMessage;
+  List<dynamic> members;
+  Message recentMsg;
 
   Group(
       {required this.admin,
-      required this.users,
+      required this.members,
       required this.groupImg,
       required this.groupName,
       required this.groupRoomId,
-      required this.recentMessage});
+      required this.recentMsg});
 
   static Map<String, dynamic> toMap(Group group) {
     return {
       "admin": group.admin,
-      "users": group.users,
+      "members": group.members,
       "groupImg": group.groupImg,
       "groupName": group.groupName,
       "groupRoomId": group.groupRoomId,
-      "recentMessage": group.recentMessage,
+      "recentMsg": Message.toJson(group.recentMsg),
     };
   }
 }

@@ -31,40 +31,49 @@ class Auth extends ChangeNotifier {
     // notifyListeners();
   }
 
-  Future signUp(context) async {
+  Future signUp({context, email, password, name}) async {
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapshot = await firestore
           .collection("users")
-          .where("email", isEqualTo: emailController.text.trim())
+          .where("email", isEqualTo: email)
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        print("user with ${emailController.text.trim()} already exist");
-      } else {
+        print("user with $email already exist");
+      }
+      if (email != null && password != null) {
         user = (await auth.createUserWithEmailAndPassword(
-                email: emailController.text.trim().toString(),
-                password: passController.text.trim().toString()))
+                email: email, password: password))
             .user;
 
         if (user != null) {
+
           UserModel userModel = UserModel(
               status: "Unavailable",
-              name: nameController.text.trim(),
-              email: emailController.text.trim(),
+              name: name,
+              email: email,
               profileImg: "",
-              groups: [],
+              groups: [""],
               recentMsg: Message(text: "", time: Timestamp.now(), sendBy: ""),
-              password: passController.text.trim());
+              password: password);
 
-          Database.usersCollection
-              .add({UserModel.toJson(userModel)}).then((value) {
-            print("user : ${nameController.text} created ");
-            user!.updateDisplayName(nameController.text.trim());
+          // add user document
+          await Database.usersCollection
+              .add(UserModel.toJson(userModel))
+              .then((value) {
+            print("user : ${UserModel.toJson(userModel)} created ");
+            user!.updateDisplayName(name);
           }).catchError((error) => print("failed to create user: $error"));
+
+
+
+          //pop out of Sign Up Screen
+          Navigator.pop(context);
         }
       }
     } on FirebaseException catch (e) {
-      print(e);
+      print("FirebaseException: ${e.code}");
+      print("FirebaseException: ${e.message}");
     }
     // notifyListeners();
   }

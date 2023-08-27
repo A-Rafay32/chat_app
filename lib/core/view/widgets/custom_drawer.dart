@@ -1,6 +1,5 @@
 import 'package:chat_app/core/view/widgets/user_avatar.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../auth/view_model/auth.dart';
 import 'drawer_item.dart';
@@ -55,11 +54,12 @@ class CustomDrawer extends StatelessWidget {
                     children: [
                       const UserAvatar(filename: 'img3.jpeg'),
                       const SizedBox(
-                        width: 12,
+                        width: 18,
                       ),
                       Text(
                         '${Auth().auth.currentUser?.displayName}',
-                        style: const TextStyle(color: Colors.white),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 18),
                       )
                     ],
                   ),
@@ -86,7 +86,7 @@ class CustomDrawer extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () {
-                  Provider.of<Auth>(context, listen: false).signOut();
+                  Auth().signOut();
                   Navigator.pop(context);
                 },
                 child: const Row(

@@ -22,13 +22,13 @@ class UserModel {
 
   static Map<String, dynamic> toJson(UserModel user) {
     return {
-      "password ": user.password,
+      "password": user.password,
       "profileImg": user.profileImg,
       "name": user.name,
       "email": user.email,
       "status": user.status,
       "groups": user.groups,
-      "recentMsg": user.recentMsg,
+      "recentMsg": Message.toJson(user.recentMsg),
     };
   }
 
@@ -39,7 +39,7 @@ class UserModel {
         email: user["email"],
         profileImg: user["profileImg"],
         groups: user["groups"],
-        recentMsg: user["recentMsg"],
+        recentMsg: Message.fromJson(user["recentMsg"]),
         password: user["status"]);
   }
 }
@@ -64,5 +64,13 @@ class Message {
 
   static Message fromJson(Map<String, dynamic> map) {
     return Message(text: map["text"], time: map["time"], sendBy: map["sendBy"]);
+  }
+
+  static Map<String, dynamic> toJson(Message msg) {
+    return {
+      "text": msg.text,
+      "sendBy": msg.sendBy,
+      "time": msg.time,
+    };
   }
 }

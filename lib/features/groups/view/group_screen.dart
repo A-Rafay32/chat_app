@@ -1,15 +1,15 @@
-import 'package:chat_app/core/model/model.dart';
-import 'package:chat_app/core/view/chat_screen.dart';
 import 'package:chat_app/core/view/widgets/conversation_row.dart';
 import 'package:chat_app/core/view/widgets/custom_app_bar.dart';
 import 'package:chat_app/core/view/widgets/custom_drawer.dart';
 import 'package:chat_app/core/view/widgets/tab_navigation_bar.dart';
+import 'package:chat_app/features/groups/group_utils.dart';
 import 'package:chat_app/features/groups/model/group_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../../../core/model/model.dart';
+import '../../../core/view/chat_screen.dart';
 import '../../../res/colors.dart';
-import '../model/group_model.dart';
 
 class GroupScreen extends StatefulWidget {
   const GroupScreen({super.key});
@@ -19,9 +19,9 @@ class GroupScreen extends StatefulWidget {
 }
 
 class _GroupScreenState extends State<GroupScreen> {
+  TextEditingController controller = TextEditingController();
   @override
   void initState() {
-    GroupDB.getGroups();
     super.initState();
   }
 
@@ -34,10 +34,10 @@ class _GroupScreenState extends State<GroupScreen> {
       backgroundColor: const Color(0xFF171717),
       body: Stack(
         children: [
-          const Column(
+          Column(
             children: [
               CustomAppBar(),
-              TabNavigationBar(fontSize: fontSize, width: width)
+              const TabNavigationBar(fontSize: fontSize, width: width)
             ],
           ),
           Positioned(
@@ -82,29 +82,34 @@ class _GroupScreenState extends State<GroupScreen> {
                           color: Color(0xFFEFFFFC),
                         ),
                         child: ListView.builder(
-                          itemCount: GroupDB.groupList?.length ?? 0,
-                          itemBuilder: (context, index) => ConversationRow(
-                              time: GroupDB
-                                  .groupList![index].recentMessage.time.seconds
-                                  .toString(),
-                              name: GroupDB.groupList![index].groupName,
-                              message:
-                                  GroupDB.groupList![index].recentMessage.text,
-                              filename: GroupDB.groupList![index].groupImg,
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ChatScreen(
-                                          chatType: ChatType.group,
-                                          chatRoomId: GroupDB
-                                              .groupList![index].groupRoomId,
-                                          userMap: Group.toMap(
-                                              GroupDB.groupList![index])),
-                                    ));
-                              },
-                              msgCount: 0),
-                        ),
+                            padding: const EdgeInsets.only(left: 25),
+                            itemCount: snapshot.data!.docs.length,
+                            itemBuilder: (context, index) {
+                              Timestamp time = snapshot.data!.docs[index]
+                                  ["recentMsg"]["time"];
+                              return ConversationRow(
+                                  time: time.seconds.toString(),
+                                  name: snapshot.data!.docs[index]["groupName"],
+                                  message: snapshot.data!.docs[index]
+                                      ["recentMsg"]["text"],
+                                  filename: snapshot.data!.docs[index]
+                                      ["groupImg"],
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ChatScreen(
+                                              chatType: ChatType.group,
+                                              documentId:
+                                                  snapshot.data!.docs[index].id,
+                                              objectMap: snapshot
+                                                      .data!.docs[index]
+                                                      .data()
+                                                  as Map<String, dynamic>),
+                                        ));
+                                  },
+                                  msgCount: 0);
+                            }),
                       );
                     } else {
                       return Container();
@@ -121,10 +126,12 @@ class _GroupScreenState extends State<GroupScreen> {
         child: FloatingActionButton(
           backgroundColor: const Color(0xFF27c1a9),
           child: const Icon(
-            Icons.edit_outlined,
+            Icons.add,
             size: 28,
           ),
-          onPressed: () {},
+          onPressed: () async {
+            await showCreateGroupDialog(context, controller);
+          },
         ),
       ),
       drawer: const CustomDrawer(),

@@ -21,12 +21,11 @@ class GroupDB extends Database {
         data.docs.length,
         (index) => Group(
             admin: data.docs[index]["admin"],
-            users: data.docs[index]["users"] as List,
+            members: data.docs[index]["members"] as List,
             groupRoomId: data.docs[index].id,
             groupImg: data.docs[index]["groupImg"],
             groupName: data.docs[index]["groupName"],
-            recentMessage:
-                Message.fromJson(data.docs[index]["recentMessage"])));
+            recentMsg: Message.fromJson(data.docs[index]["recentMsg"])));
   }
 
   static void onSendMessage(String groupRoomId) async {
@@ -56,5 +55,68 @@ class GroupDB extends Database {
         .doc(groupRoomId)
         .collection("chats")
         .snapshots();
+  }
+
+  static void createGroup(String groupName) async {
+    try {
+      //create group
+      DocumentReference groupDoc = await groupCollection.add({
+        "admin": Auth().auth.currentUser!.displayName,
+        "members": ["${Auth().auth.currentUser!.displayName}"],
+        "groupImg": "",
+        "groupName": groupName,
+        "recentMsg": {"sendBy": "", "time": Timestamp.now(), "text": ""}
+      });
+
+      // //update id
+      // await groupDoc.update({"groupRoomId": groupDoc.id});
+
+      //update group array in user/admin
+      QuerySnapshot user = await Database.usersCollection
+          .where("email", isEqualTo: Auth().auth.currentUser!.email)
+          .limit(1)
+          .get();
+
+      await Database.usersCollection.doc(user.docs.first.id).update({
+        "groups": FieldValue.arrayUnion([groupDoc.id])
+      });
+    } on FirebaseException catch (e) {
+      print("Group creation Failed : ${e.message}");
+    }
+  }
+
+  static void addMemberInGroup(
+      String groupDocId, String memberEmail, String memberName) async {
+    try {
+      QuerySnapshot member = await Database.usersCollection
+          .where("email", isEqualTo: memberEmail)
+          .get();
+
+      QuerySnapshot group = await groupCollection
+          .where("members", arrayContains: memberName)
+          .get();
+
+      if (member.docs.isNotEmpty && group.docs.isEmpty) {
+        // update user's group field
+        await Database.usersCollection.doc(member.docs.first.id).update({
+          "groups": FieldValue.arrayUnion([groupDocId])
+        }).then((value) {
+          print("group: $groupDocId added in user's groups field");
+          return null;
+        });
+
+        //update group's member field
+        await groupCollection.doc(groupDocId).update({
+          "members": FieldValue.arrayUnion([memberName])
+        }).then((value) {
+          print("$memberName added in group's member field");
+          return null;
+        });
+      } else {
+        print("Couldnot fetch member ${member.docs.first.data()} ");
+      }
+    } on FirebaseException catch (e) {
+      print("Couldn't add member $memberEmail: $e");
+    }
   }
 }

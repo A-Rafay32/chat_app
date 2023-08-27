@@ -1,23 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
-import 'package:provider/provider.dart';
 
-import '../../features/groups/model/group_database.dart';
-import '../../res/colors.dart';
 import '../../auth/view_model/auth.dart';
+import '../../features/groups/model/group_database.dart';
+import '../../features/groups/view/add_member_screen.dart';
+import '../../res/colors.dart';
 import '../model/data/database.dart';
 import '../model/model.dart';
 
 class ChatScreen extends StatefulWidget {
-  final String chatRoomId;
-  final Map<String, dynamic> userMap;
+  // documentId is chatRoomId for ChatType.one2one
+  // documentId is groupDocId for ChatType.group
+  final String documentId;
+  final Map<String, dynamic> objectMap;
   final ChatType chatType;
 
   const ChatScreen({
     super.key,
-    required this.chatRoomId,
-    required this.userMap,
+    required this.documentId,
+    required this.objectMap,
     required this.chatType,
   });
 
@@ -26,11 +28,16 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  String formatList(List<dynamic> list) {
+    String str = "${list.join(" , ")}\t\t";
+    return str;
+  }
+
   @override
   void initState() {
     widget.chatType == ChatType.group
-        ? GroupDB.getGroupMessages(widget.chatRoomId)
-        : Database.getMessages(widget.chatRoomId);
+        ? GroupDB.getGroupMessages(widget.documentId)
+        : Database.getMessages(widget.documentId);
     super.initState();
   }
 
@@ -57,10 +64,20 @@ class _ChatScreenState extends State<ChatScreen> {
                         icon: const Icon(
                             color: secondaryColor,
                             Icons.arrow_back_ios_new_sharp)),
-                    IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                            color: secondaryColor, Icons.more_vert_sharp))
+                    if (Auth().auth.currentUser!.displayName ==
+                        widget.objectMap["admin"])
+                      IconButton(
+                          tooltip: "Add a member",
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AddMemberScreen(
+                                    groupDocId: widget.documentId,
+                                  ),
+                                ));
+                          },
+                          icon: const Icon(color: secondaryColor, Icons.add))
                   ]),
             ),
             Positioned(
@@ -82,15 +99,15 @@ class _ChatScreenState extends State<ChatScreen> {
                           children: [
                             Text(
                               widget.chatType != ChatType.group
-                                  ? "${widget.userMap["name"]}"
-                                  : "${widget.userMap["groupName"]}",
+                                  ? "${widget.objectMap["name"]}"
+                                  : "${widget.objectMap["groupName"]}",
                               style: const TextStyle(
                                   fontSize: 18, color: Colors.black),
                             ),
                             Text(
                                 widget.chatType != ChatType.group
-                                    ? "${widget.userMap["status"]}"
-                                    : "",
+                                    ? "${widget.objectMap["status"]}"
+                                    : formatList(widget.objectMap["members"]),
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelMedium
@@ -101,8 +118,14 @@ class _ChatScreenState extends State<ChatScreen> {
                       Expanded(
                         child: StreamBuilder<QuerySnapshot>(
                             stream: widget.chatType == ChatType.group
-                                ? GroupDB.groupChats
-                                : Database.chats,
+                                ? GroupDB.groupCollection
+                                    .doc(widget.documentId)
+                                    .collection("chats")
+                                    .snapshots()
+                                : Database.chatRoomCollection
+                                    .doc(widget.documentId)
+                                    .collection("chats")
+                                    .snapshots(),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
@@ -142,8 +165,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                         padding: const EdgeInsets.all(12),
                                         decoration: BoxDecoration(
                                             color: messages["sendBy"] ==
-                                                    Provider.of<Auth>(context,
-                                                            listen: false)
+                                                    Auth()
                                                         .auth
                                                         .currentUser
                                                         ?.displayName
@@ -160,8 +182,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                           messages["message"],
                                           style: TextStyle(
                                             color: messages["sendBy"] ==
-                                                    Provider.of<Auth>(context,
-                                                            listen: false)
+                                                    Auth()
                                                         .auth
                                                         .currentUser
                                                         ?.displayName
@@ -224,14 +245,13 @@ class _ChatScreenState extends State<ChatScreen> {
                             child: IconButton(
                                 onPressed: () {
                                   widget.chatType == ChatType.group
-                                      ? GroupDB.onSendMessage(widget.chatRoomId)
+                                      ? GroupDB.onSendMessage(widget.documentId)
                                       : Database.onSendMessage(
-                                          widget.chatRoomId);
+                                          widget.documentId);
                                 },
                                 icon: const Icon(
                                     color: Colors.white, Icons.send)),
                           )
-                          
                         ],
                       )
                     ],

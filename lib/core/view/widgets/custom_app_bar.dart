@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import '../../../auth/view_model/auth.dart';
 
 class CustomAppBar extends StatelessWidget {
-  const CustomAppBar({
+  CustomAppBar({
     super.key,
   });
+  final FocusNode focusNode = FocusNode();
+  final TextEditingController controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -29,16 +28,38 @@ class CustomAppBar extends StatelessWidget {
           //  )
           // ,
           IconButton(
-            onPressed: () {
-              Provider.of<Auth>(context, listen: false).signOut();
-            },
+            onPressed: () => focusNode.requestFocus(),
             icon: const Icon(color: Colors.white, Icons.search),
-            // icon: const Icon(
-            //   Icons.search,
-            //   color: Colors.white,
-            // )
           ),
         ],
+      ),
+    );
+  }
+
+  TextField searchTextField(controller) {
+    return TextField(
+      focusNode: focusNode,
+      controller: controller,
+      decoration: TextFieldDecoration(),
+    );
+  }
+
+  InputDecoration TextFieldDecoration() {
+    return const InputDecoration(
+      border: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.black54),
+        gapPadding: 10,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.black54),
+        gapPadding: 10,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.black54),
+        gapPadding: 10,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
     );
   }
