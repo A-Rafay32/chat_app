@@ -3,18 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:provider/provider.dart';
 
+import '../../features/groups/model/group_database.dart';
 import '../../res/colors.dart';
 import '../../auth/view_model/auth.dart';
 import '../model/data/database.dart';
+import '../model/model.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatRoomId;
   final Map<String, dynamic> userMap;
+  final ChatType chatType;
 
   const ChatScreen({
     super.key,
     required this.chatRoomId,
     required this.userMap,
+    required this.chatType,
   });
 
   @override
@@ -24,7 +28,9 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
-    Database.getMessages(widget.chatRoomId);
+    widget.chatType == ChatType.group
+        ? GroupDB.getGroupMessages(widget.chatRoomId)
+        : Database.getMessages(widget.chatRoomId);
     super.initState();
   }
 
@@ -75,11 +81,16 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: Column(
                           children: [
                             Text(
-                              "${widget.userMap["name"]}",
+                              widget.chatType != ChatType.group
+                                  ? "${widget.userMap["name"]}"
+                                  : "${widget.userMap["groupName"]}",
                               style: const TextStyle(
                                   fontSize: 18, color: Colors.black),
                             ),
-                            Text("${widget.userMap["status"]}",
+                            Text(
+                                widget.chatType != ChatType.group
+                                    ? "${widget.userMap["status"]}"
+                                    : "",
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelMedium
@@ -89,14 +100,16 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       Expanded(
                         child: StreamBuilder<QuerySnapshot>(
-                            stream: Database.chats,
+                            stream: widget.chatType == ChatType.group
+                                ? GroupDB.groupChats
+                                : Database.chats,
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
                                 return Column(
                                   children: [
                                     SizedBox(
-                                      height: h * 0.5,
+                                      height: h * 0.3,
                                     ),
                                     const SizedBox(
                                       height: 30,
@@ -113,15 +126,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                   padding: const EdgeInsets.all(8),
                                   elements: snapshot.data!.docs,
                                   groupBy: (element) => element["time"],
-
-                                  //     {r
-                                  //   Timestamp timestamp = messages["time"];
-                                  //   DateTime dateTime = timestamp.toDate();
-                                  //   int month = dateTime.month;
-                                  //   int day = dateTime.day;
-                                  //   int year = dateTime.year;
-                                  //   return DateTime(year, month, day);
-                                  // },
                                   order: GroupedListOrder.ASC,
                                   groupHeaderBuilder:
                                       (QueryDocumentSnapshot messages) =>
@@ -130,11 +134,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                           QueryDocumentSnapshot messages) =>
                                       Align(
                                     alignment: messages["sendBy"] ==
-                                            Provider.of<Auth>(context,
-                                                    listen: false)
-                                                .auth
-                                                .currentUser
-                                                ?.displayName
+                                            Auth().auth.currentUser?.displayName
                                         ? Alignment.centerRight
                                         : Alignment.centerLeft,
                                     child: Container(
@@ -223,13 +223,15 @@ class _ChatScreenState extends State<ChatScreen> {
                                 color: primaryColor, shape: BoxShape.circle),
                             child: IconButton(
                                 onPressed: () {
-                                  // Provider.of<DBViewModel>(context,
-                                  //         listen: false)
-                                  Database.onSendMessage(widget.chatRoomId);
+                                  widget.chatType == ChatType.group
+                                      ? GroupDB.onSendMessage(widget.chatRoomId)
+                                      : Database.onSendMessage(
+                                          widget.chatRoomId);
                                 },
                                 icon: const Icon(
                                     color: Colors.white, Icons.send)),
                           )
+                          
                         ],
                       )
                     ],

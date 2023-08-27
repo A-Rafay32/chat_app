@@ -1,4 +1,7 @@
+import 'package:chat_app/features/groups/view/group_screen.dart';
 import 'package:flutter/material.dart';
+
+import '../home_screen.dart';
 
 class TabNavigationBar extends StatelessWidget {
   const TabNavigationBar({
@@ -19,7 +22,13 @@ class TabNavigationBar extends StatelessWidget {
         padding: const EdgeInsets.only(left: 10),
         children: [
           TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HomeScreen(),
+                    ));
+              },
               child: Text(
                 "Messages",
                 style: TextStyle(color: Colors.white, fontSize: fontSize),
@@ -37,7 +46,13 @@ class TabNavigationBar extends StatelessWidget {
             width: width,
           ),
           TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const GroupScreen(),
+                    ));
+              },
               child: Text(
                 "Groups",
                 style: TextStyle(color: Colors.grey, fontSize: fontSize),

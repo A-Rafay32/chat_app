@@ -1,10 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+enum ChatType { one2one, group }
+
 class UserModel {
   String profileImg;
   String name;
   String email;
   String status;
-  List<String> groups;
-  int id;
+  List<dynamic> groups;
+  Message recentMsg;
+  String password;
 
   UserModel(
       {required this.status,
@@ -12,17 +17,30 @@ class UserModel {
       required this.email,
       required this.profileImg,
       required this.groups,
-      required this.id});
+      required this.recentMsg,
+      required this.password});
 
-  Map<dynamic, dynamic> toMap(UserModel user) {
+  static Map<String, dynamic> toJson(UserModel user) {
     return {
-      id: user.id,
-      profileImg: user.profileImg,
-      name: user.name,
-      email: user.email,
-      status: user.status,
-      groups: user.groups,
+      "password ": user.password,
+      "profileImg": user.profileImg,
+      "name": user.name,
+      "email": user.email,
+      "status": user.status,
+      "groups": user.groups,
+      "recentMsg": user.recentMsg,
     };
+  }
+
+  static UserModel fromJson(Map<String, dynamic> user) {
+    return UserModel(
+        status: user["status"],
+        name: user["name"],
+        email: user["email"],
+        profileImg: user["profileImg"],
+        groups: user["groups"],
+        recentMsg: user["recentMsg"],
+        password: user["status"]);
   }
 }
 
@@ -35,12 +53,16 @@ class chatRoom {
 
 class Message {
   String text;
-  DateTime date;
-  bool isSentByMe;
+  Timestamp time;
+  String sendBy;
 
   Message({
     required this.text,
-    required this.date,
-    required this.isSentByMe,
+    required this.time,
+    required this.sendBy,
   });
+
+  static Message fromJson(Map<String, dynamic> map) {
+    return Message(text: map["text"], time: map["time"], sendBy: map["sendBy"]);
+  }
 }

@@ -18,8 +18,12 @@ class _WidgetTreeState extends State<WidgetTree> {
       stream: Auth.authStateChanges,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator(
-            color: primaryColor,
+          return const Column(
+            children: [
+              CircularProgressIndicator(
+                color: primaryColor,
+              ),
+            ],
           );
         }
         if (snapshot.hasData) {

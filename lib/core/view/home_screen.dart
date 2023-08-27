@@ -4,10 +4,11 @@ import 'package:chat_app/core/view/widgets/custom_drawer.dart';
 import 'package:chat_app/core/view/widgets/fav_contact_bar.dart';
 import 'package:chat_app/core/view/widgets/tab_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '../../auth/view_model/auth.dart';
 import '../model/data/database.dart';
+import '../model/model.dart';
 import 'chat_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,11 +19,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // final GlobalKey<ScaffoldState> _globalKey = GlobalKey();
-  Map<String, dynamic> userMap = {};
-
   @override
   void initState() {
+    Database.getUsersList();
     super.initState();
   }
 
@@ -30,6 +29,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     const double fontSize = 16;
     const double width = 12;
+    double h = MediaQuery.sizeOf(context).height;
+
     return Scaffold(
       backgroundColor: const Color(0xFF171717),
       body: Stack(
@@ -54,112 +55,63 @@ class _HomeScreenState extends State<HomeScreen> {
                       topRight: Radius.circular(40)),
                   color: Color(0xFFEFFFFC),
                 ),
-                child: ListView(
-                  padding: const EdgeInsets.only(left: 25),
-                  children: [
-                    GestureDetector(
-                      onTap: () {},
-                      child: ConversationRow(
-                        name: 'Laura',
-                        message: 'Hello, how are you',
-                        filename: 'img1.jpeg',
-                        msgCount: 0,
-                        onTap: () async {
-                          Map<String, dynamic> userMap =
-                              await Database.getUser("Laura");
-                          print(Provider.of<Auth>(context, listen: false)
-                                  .auth
-                                  .currentUser
-                                  ?.displayName ??
-                              "");
-                          String roomId = Database.chatRoomId(
-                              Provider.of<Auth>(context, listen: false)
-                                      .auth
-                                      .currentUser
-                                      ?.displayName ??
-                                  "",
-                              "Laura");
-                          Navigator.push(context, MaterialPageRoute(
-                            builder: (context) {
-                              return ChatScreen(
-                                chatRoomId: roomId,
-                                userMap: userMap,
-                              );
+                child: StreamBuilder(
+                    stream: Database.usersCollection.snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return ListView.builder(
+                          padding: const EdgeInsets.only(left: 25),
+                          itemCount: Database.userList!.length,
+                          itemBuilder: (context, index) => ConversationRow(
+                            time: Database
+                                .userList![index].recentMsg.time.seconds
+                                .toString(),
+                            name: Database.userList![index].name,
+                            message: Database.userList![index].recentMsg.text,
+                            filename: Database.userList![index].profileImg,
+                            msgCount: 0,
+                            onTap: () async {
+                              //get other user
+                              Map<String, dynamic> userMap =
+                                  await Database.getUser(
+                                      snapshot.data!.docs[index]["name"]);
+                              print(Auth().auth.currentUser?.displayName ?? "");
+
+                              // generate roomId with them
+                              String roomId = Database.chatRoomId(
+                                  Auth().auth.currentUser?.displayName ?? "",
+                                  snapshot.data!.docs[index]["name"]);
+
+                              //navigate
+                              Navigator.push(context, MaterialPageRoute(
+                                builder: (context) {
+                                  return ChatScreen(
+                                    chatType: ChatType.one2one,
+                                    chatRoomId: roomId,
+                                    userMap: userMap,
+                                  );
+                                },
+                              ));
                             },
-                          ));
-                        },
-                      ),
-                    ),
-                    ConversationRow(
-                      name: 'Kalya',
-                      message: 'Will you visit me',
-                      filename: 'img2.jpeg',
-                      msgCount: 2,
-                      onTap: () async {
-                        Map<String, dynamic> userMap =
-                            await Database.getUser("Kalya");
-                        print(Provider.of<Auth>(context, listen: false)
-                                .auth
-                                .currentUser
-                                ?.displayName ??
-                            "");
-                        String roomId = Database.chatRoomId(
-                            Provider.of<Auth>(context, listen: false)
-                                    .auth
-                                    .currentUser
-                                    ?.displayName ??
-                                "",
-                            "Kalya");
-                        Navigator.push(context, MaterialPageRoute(
-                          builder: (context) {
-                            return ChatScreen(
-                              chatRoomId: roomId,
-                              userMap: userMap,
-                            );
-                          },
-                        ));
-                      },
-                    ),
-                    // ConversationRow('Mary', 'I ate your pussy', 'img3.jpeg', 6),
-                    // ConversationRow(
-                    //     'Hellen', 'Are you with Kayla again', 'img5.jpeg', 0),
-                    // ConversationRow(
-                    //     'Louren', 'Barrow money please', 'img6.jpeg', 3),
-                    ConversationRow(
-                        name: 'Tom',
-                        message: 'Hey, whatsup',
-                        filename: 'img7.jpeg',
-                        msgCount: 0,
-                        onTap: () async {
-                          Map<String, dynamic> userMap =
-                              await Database.getUser("Tom");
-                          print(Provider.of<Auth>(context, listen: false)
-                                  .auth
-                                  .currentUser
-                                  ?.displayName ??
-                              "");
-                          String roomId = Database.chatRoomId(
-                              Provider.of<Auth>(context, listen: false)
-                                      .auth
-                                      .currentUser
-                                      ?.displayName ??
-                                  "",
-                              "Tom");
-                          Navigator.push(context, MaterialPageRoute(
-                            builder: (context) {
-                              return ChatScreen(
-                                chatRoomId: roomId,
-                                userMap: userMap,
-                              );
-                            },
-                          ));
-                        }),
-                    // ConversationRow(
-                    //     'Laura', 'Helle, how are you', 'img1.jpeg', 0),
-                    // ConversationRow(
-                    //     'Laura', 'Helle, how are you', 'img1.jpeg', 0),
-                  ],
-                ),
+                          ),
+                        );
+                      } else {
+                        return Column(
+                          children: [
+                            SizedBox(
+                              height: h * 0.1,
+                            ),
+                            SvgPicture.asset(
+                              "assets/icons/box.svg",
+                              height: 50,
+                              width: 50,
+                              colorFilter: const ColorFilter.mode(
+                                  Colors.grey, BlendMode.dstIn),
+                            )
+                          ],
+                        );
+                      }
+                    }),
               ))
         ],
       ),

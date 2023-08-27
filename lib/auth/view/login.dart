@@ -114,9 +114,6 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              // const SizedBox(
-              //   height: 30,
-              // ),
               Container(
                 child: Padding(
                   padding: EdgeInsets.symmetric(
@@ -180,9 +177,6 @@ class LoginScreen extends StatelessWidget {
                       ]),
                 )),
               ),
-              // const SizedBox(
-              //   height: 0,
-              // ),
             ]),
       ),
     );

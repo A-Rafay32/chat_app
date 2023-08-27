@@ -8,12 +8,14 @@ class ConversationRow extends StatelessWidget {
       required this.message,
       required this.filename,
       required this.onTap,
+      required this.time,
       required this.msgCount});
 
   String name;
   String message;
   String filename;
   int msgCount;
+  String time;
 
   Function() onTap;
 
@@ -59,9 +61,9 @@ class ConversationRow extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 25, top: 5),
                   child: Column(
                     children: [
-                      const Text(
-                        '16:35',
-                        style: TextStyle(fontSize: 10),
+                      Text(
+                        time,
+                        style: const TextStyle(fontSize: 10),
                       ),
                       const SizedBox(
                         height: 15,

@@ -17,6 +17,7 @@ class CustomAppBar extends StatelessWidget {
         children: [
           IconButton(
               onPressed: () {
+                Scaffold.of(context).openDrawer();
                 // _globalKey.currentState!.openDrawer();
               },
               icon: const Icon(

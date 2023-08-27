@@ -1,3 +1,4 @@
+import 'package:chat_app/core/model/model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +14,7 @@ class Database {
   static TextEditingController msgController = TextEditingController();
 
   static Stream<QuerySnapshot>? chats;
+  static List<UserModel>? userList;
 
   static String chatRoomId(String user1, String user2) {
     if (user1[0].toLowerCase().codeUnits[0] >
@@ -58,5 +60,20 @@ class Database {
         .doc(chatRoomId)
         .collection("chats")
         .snapshots();
+  }
+
+  static void getUsersList() async {
+    QuerySnapshot data = await usersCollection.get();
+
+    userList = List.generate(
+        data.docs.length,
+        (index) => UserModel(
+            status: data.docs[index]["status"],
+            name: data.docs[index]["name"],
+            email: data.docs[index]["email"],
+            profileImg: data.docs[index]["profileImg"],
+            groups: data.docs[index]["groups"] as List,
+            recentMsg: Message.fromJson(data.docs[index]["recentMsg"]),
+            password: data.docs[index]["password"]));
   }
 }

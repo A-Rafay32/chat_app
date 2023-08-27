@@ -87,7 +87,7 @@ class SignUpScreen extends StatelessWidget {
             right: 50,
             child: GestureDetector(
               onTap: () {
-                Provider.of<Auth>(context, listen: false).signUp(context);
+                Auth().signUp(context);
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),

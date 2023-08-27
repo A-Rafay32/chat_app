@@ -58,7 +58,7 @@ class CustomDrawer extends StatelessWidget {
                         width: 12,
                       ),
                       Text(
-                        '${Provider.of<Auth>(context, listen: false).auth.currentUser?.email}',
+                        '${Auth().auth.currentUser?.displayName}',
                         style: const TextStyle(color: Colors.white),
                       )
                     ],
