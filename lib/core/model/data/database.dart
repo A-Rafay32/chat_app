@@ -1,3 +1,5 @@
+import 'dart:js_interop';
+
 import 'package:chat_app/core/model/model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -30,25 +32,52 @@ class Database {
         .collection("users")
         .where("name", isEqualTo: name)
         .get();
-    return user.docs[0].data();
+    return user.docs.first.data();
   }
 
-  static void onSendMessage(String chatRoomId) async {
+  static Future<QuerySnapshot> getUserQuerySnapshot(String name) async {
+    return await firebaseFirestore
+        .collection("users")
+        .where("name", isEqualTo: name)
+        .get();
+  }
+
+  static void onSendMessage(String chatRoomId, String receiverName) async {
+    QuerySnapshot userSender =
+        await getUserQuerySnapshot(Auth().auth.currentUser?.displayName ?? "");
+    QuerySnapshot userReceiver = await getUserQuerySnapshot(receiverName);
+
     if (msgController.text.isNotEmpty) {
       Map<String, dynamic> msgMap = {
         "sendBy": Auth().auth.currentUser?.displayName,
-        "message": msgController.text.trim(),
+        "text": msgController.text.trim(),
         "time": Timestamp.now(),
       };
 
+      msgController.clear();
+      // add message to db
       await firebaseFirestore
           .collection("chatroom")
           .doc(chatRoomId)
           .collection("chats")
           .add(msgMap);
       print("$msgMap sent");
+
+      // update recent message in both users
+      if (!userSender.isNull) {
+        await firebaseFirestore
+            .collection("users")
+            .doc(userSender.docs.first.id)
+            .update({"recentMsg": msgMap});
+      }
+      if (!userReceiver.isNull) {
+        await firebaseFirestore
+            .collection("users")
+            .doc(userReceiver.docs.first.id)
+            .update({"recentMsg": msgMap});
+      }
+
       // msgMap.clear();
-      msgController.clear();
     } else {
       print("Can't send empty messages");
     }
@@ -75,5 +104,79 @@ class Database {
             groups: data.docs[index]["groups"] as List,
             recentMsg: Message.fromJson(data.docs[index]["recentMsg"]),
             password: data.docs[index]["password"]));
+  }
+
+  // static void getUser() async {
+  //   QuerySnapshot user = await usersCollection
+  //       .where("email", isEqualTo: Auth().auth.currentUser?.email ?? "")
+  //       .get();
+  //   Map<String, dynamic> map = user.docs.first.data() as Map<String, dynamic>;
+
+  //   Auth.userStatus = map["status"];
+
+  //   print("user Status : ${Auth.userStatus}");
+  // }
+
+  static void updateUserEmail(String newEmail) async {
+    try {
+      QuerySnapshot user = await usersCollection
+          .where("email", isEqualTo: Auth().auth.currentUser?.email ?? "")
+          .limit(1)
+          .get();
+      await usersCollection.doc(user.docs.first.id).update({"email": newEmail});
+      await Auth().auth.currentUser!.updateEmail(newEmail);
+    } on FirebaseException catch (e) {
+      print("error updating email : $e");
+    }
+  }
+
+  static void updateUserName(String newName) async {
+    try {
+      QuerySnapshot user = await usersCollection
+          .where("email", isEqualTo: Auth().auth.currentUser?.email ?? "")
+          .limit(1)
+          .get();
+      await usersCollection.doc(user.docs.first.id).update({"name": newName});
+      await Auth().auth.currentUser!.updateDisplayName(newName);
+    } on FirebaseException catch (e) {
+      print("error updating name : $e");
+    }
+  }
+
+  static void updateUserStatus(String newStatus) async {
+    try {
+      QuerySnapshot user = await usersCollection
+          .where("email", isEqualTo: Auth().auth.currentUser?.email ?? "")
+          .limit(1)
+          .get();
+      await usersCollection
+          .doc(user.docs.first.id)
+          .update({"status": newStatus});
+    } on FirebaseException catch (e) {
+      print("error updating status : $e");
+    }
+  }
+
+  static void updateUserInfo(
+      String newEmail, String newName, String newStatus) {
+    try {
+      updateUserEmail(newEmail);
+      updateUserName(newName);
+      updateUserStatus(newStatus);
+    } on FirebaseException catch (e) {
+      print("error updating user info $e");
+    }
+  }
+
+  static void getCurrentUser() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> user = await firebaseFirestore
+          .collection("users")
+          .where("name", isEqualTo: Auth().auth.currentUser?.displayName)
+          .get();
+      Auth.userMap = user.docs.first.data();
+    } on FirebaseException catch (e) {
+      print("Could not fetch current user $e");
+    }
   }
 }

@@ -2,6 +2,7 @@ import 'package:chat_app/features/groups/view/group_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../home_screen.dart';
+import '../user_profile_ screen.dart';
 
 class TabNavigationBar extends StatelessWidget {
   const TabNavigationBar({
@@ -61,7 +62,13 @@ class TabNavigationBar extends StatelessWidget {
             width: width,
           ),
           TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UserProfileScreen(image: ""),
+                    ));
+              },
               child: Text(
                 "More",
                 style: TextStyle(color: Colors.grey, fontSize: fontSize),

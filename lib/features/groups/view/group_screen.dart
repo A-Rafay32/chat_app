@@ -83,16 +83,16 @@ class _GroupScreenState extends State<GroupScreen> {
                         ),
                         child: ListView.builder(
                             padding: const EdgeInsets.only(left: 25),
-                            itemCount: snapshot.data!.docs.length,
+                            itemCount: snapshot.data?.docs.length,
                             itemBuilder: (context, index) {
-                              Timestamp time = snapshot.data!.docs[index]
+                              Timestamp time = snapshot.data?.docs[index]
                                   ["recentMsg"]["time"];
                               return ConversationRow(
                                   time: time.seconds.toString(),
-                                  name: snapshot.data!.docs[index]["groupName"],
-                                  message: snapshot.data!.docs[index]
+                                  name: snapshot.data?.docs[index]["groupName"],
+                                  message: snapshot.data?.docs[index]
                                       ["recentMsg"]["text"],
-                                  filename: snapshot.data!.docs[index]
+                                  filename: snapshot.data?.docs[index]
                                       ["groupImg"],
                                   onTap: () {
                                     Navigator.push(

@@ -1,3 +1,5 @@
+import 'package:chat_app/core/model/data/images_db.dart';
+import 'package:chat_app/core/view/widgets/user_avatar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
@@ -33,6 +35,16 @@ class _ChatScreenState extends State<ChatScreen> {
     return str;
   }
 
+  bool checkForImage(String image) {
+    if (image.contains(".jpg") ||
+        image.contains(".png") ||
+        image.contains(".jpeg")) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   @override
   void initState() {
     widget.chatType == ChatType.group
@@ -66,18 +78,44 @@ class _ChatScreenState extends State<ChatScreen> {
                             Icons.arrow_back_ios_new_sharp)),
                     if (Auth().auth.currentUser!.displayName ==
                         widget.objectMap["admin"])
-                      IconButton(
-                          tooltip: "Add a member",
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AddMemberScreen(
-                                    groupDocId: widget.documentId,
-                                  ),
-                                ));
-                          },
-                          icon: const Icon(color: secondaryColor, Icons.add))
+                      PopupMenuButton(
+                        color: Colors.white,
+                        elevation: 2,
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                              child: TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => AddMemberScreen(
+                                            groupDocId: widget.documentId,
+                                          ),
+                                        ));
+                                  },
+                                  child: const Text(
+                                    "Add participant",
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 15),
+                                  ))),
+                          PopupMenuItem(
+                              child: TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => AddMemberScreen(
+                                            groupDocId: widget.documentId,
+                                          ),
+                                        ));
+                                  },
+                                  child: const Text(
+                                    "Set Group Image ",
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 15),
+                                  )))
+                        ],
+                      ),
                   ]),
             ),
             Positioned(
@@ -160,36 +198,64 @@ class _ChatScreenState extends State<ChatScreen> {
                                             Auth().auth.currentUser?.displayName
                                         ? Alignment.centerRight
                                         : Alignment.centerLeft,
-                                    child: Container(
-                                        margin: const EdgeInsets.all(12),
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                            color: messages["sendBy"] ==
-                                                    Auth()
-                                                        .auth
-                                                        .currentUser
-                                                        ?.displayName
-                                                ? primaryColor
-                                                : Colors.white,
-                                            borderRadius:
-                                                const BorderRadius.only(
-                                              topLeft: Radius.circular(20),
-                                              topRight: Radius.circular(20),
-                                              bottomRight: Radius.circular(20),
-                                            )),
-                                        // elevation: 8.0,
-                                        child: Text(
-                                          messages["message"],
-                                          style: TextStyle(
-                                            color: messages["sendBy"] ==
-                                                    Auth()
-                                                        .auth
-                                                        .currentUser
-                                                        ?.displayName
-                                                ? Colors.white
-                                                : primaryColor,
+                                    child: checkForImage(messages["text"]) ==
+                                            true
+                                        ? Image.network(messages["text"])
+                                        : Row(
+                                            children: [
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              UserAvatar(
+                                                  radius: 14,
+                                                  filename: widget.chatType ==
+                                                          ChatType.group
+                                                      ? ""
+                                                      : widget.objectMap[
+                                                          "profileImg"]),
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              Container(
+                                                  margin:
+                                                      const EdgeInsets.all(12),
+                                                  padding:
+                                                      const EdgeInsets.all(12),
+                                                  decoration: BoxDecoration(
+                                                      color: messages[
+                                                                  "sendBy"] ==
+                                                              Auth()
+                                                                  .auth
+                                                                  .currentUser
+                                                                  ?.displayName
+                                                          ? primaryColor
+                                                          : Colors.white,
+                                                      borderRadius:
+                                                          const BorderRadius
+                                                              .only(
+                                                        topLeft:
+                                                            Radius.circular(20),
+                                                        topRight:
+                                                            Radius.circular(20),
+                                                        bottomRight:
+                                                            Radius.circular(20),
+                                                      )),
+                                                  // elevation: 8.0,
+                                                  child: Text(
+                                                    messages["text"],
+                                                    style: TextStyle(
+                                                      color: messages[
+                                                                  "sendBy"] ==
+                                                              Auth()
+                                                                  .auth
+                                                                  .currentUser
+                                                                  ?.displayName
+                                                          ? Colors.white
+                                                          : primaryColor,
+                                                    ),
+                                                  )),
+                                            ],
                                           ),
-                                        )),
                                   ),
                                 );
                               } else {
@@ -210,24 +276,31 @@ class _ChatScreenState extends State<ChatScreen> {
                               cursorColor: Colors.white,
                               cursorHeight: 18,
                               controller: Database.msgController,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                   contentPadding:
-                                      EdgeInsets.symmetric(vertical: 5),
-                                  suffix: Icon(
-                                      color: Colors.white,
-                                      Icons.file_upload_outlined),
-                                  suffixIcon: Icon(Icons.image),
+                                      const EdgeInsets.symmetric(vertical: 5),
+                                  suffixIcon: IconButton(
+                                      onPressed: () {
+                                        widget.chatType == ChatType.group
+                                            ? ImageDB().onSendImages(
+                                                ImageDB().groupRef,
+                                                widget.documentId)
+                                            : ImageDB().onSendImages(
+                                                ImageDB().chatRoomRef,
+                                                widget.documentId);
+                                      },
+                                      icon: const Icon(Icons.image)),
                                   suffixIconColor: Colors.white,
                                   prefixIconColor: Colors.white,
                                   prefixIcon:
-                                      Icon(Icons.emoji_emotions_outlined),
-                                  enabledBorder: OutlineInputBorder(
+                                      const Icon(Icons.emoji_emotions_outlined),
+                                  enabledBorder: const OutlineInputBorder(
                                     borderSide:
                                         BorderSide(color: Colors.transparent),
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(20)),
                                   ),
-                                  focusedBorder: OutlineInputBorder(
+                                  focusedBorder: const OutlineInputBorder(
                                     borderSide:
                                         BorderSide(color: Colors.transparent),
                                     borderRadius:
@@ -247,7 +320,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                   widget.chatType == ChatType.group
                                       ? GroupDB.onSendMessage(widget.documentId)
                                       : Database.onSendMessage(
-                                          widget.documentId);
+                                          widget.documentId,
+                                          widget.objectMap["name"]);
                                 },
                                 icon: const Icon(
                                     color: Colors.white, Icons.send)),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../model/data/database.dart';
 import 'contact_avatar.dart';
 
 class FavContactsBar extends StatelessWidget {
@@ -10,7 +11,7 @@ class FavContactsBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: 130,
+      top: 60,
       left: 0,
       right: 0,
       child: Container(
@@ -42,19 +43,24 @@ class FavContactsBar extends StatelessWidget {
             ),
             SizedBox(
               height: 90,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: const [
-                  ContactAvatar(name: 'Alla', filename: 'img1.jpeg'),
-                  ContactAvatar(name: 'July', filename: 'img2.jpeg'),
-                  ContactAvatar(name: 'Mikle', filename: 'img3.jpeg'),
-                  ContactAvatar(name: 'Kler', filename: 'img4.jpg'),
-                  ContactAvatar(name: 'Moane', filename: 'img5.jpeg'),
-                  ContactAvatar(name: 'Julie', filename: 'img6.jpeg'),
-                  ContactAvatar(name: 'Allen', filename: 'img7.jpeg'),
-                  ContactAvatar(name: 'John', filename: 'img8.jpg'),
-                ],
-              ),
+              child: StreamBuilder(
+                  stream: Database.usersCollection.limit(6).snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return ListView.builder(
+                        itemCount: snapshot.data?.docs.length,
+                        itemBuilder: (context, index) {
+                          return ContactAvatar(
+                              name: snapshot.data?.docs[index]["name"],
+                              filename: snapshot.data?.docs[index]
+                                  ["profileImg"]);
+                        },
+                        scrollDirection: Axis.horizontal,
+                      );
+                    } else {
+                      return Container();
+                    }
+                  }),
             )
           ],
         ),

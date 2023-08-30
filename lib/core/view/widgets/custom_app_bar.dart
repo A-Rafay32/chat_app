@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../search_screen.dart';
+
 class CustomAppBar extends StatelessWidget {
   CustomAppBar({
     super.key,
@@ -9,30 +11,21 @@ class CustomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 20, left: 5, right: 5),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-                // _globalKey.currentState!.openDrawer();
-              },
-              icon: const Icon(
-                Icons.menu,
-                color: Color.fromARGB(255, 149, 136, 136),
-              )),
-          //   TextField(
-          //   controller: TextEditingController(),
-          //  )
-          // ,
-          IconButton(
-            onPressed: () => focusNode.requestFocus(),
-            icon: const Icon(color: Colors.white, Icons.search),
-          ),
-        ],
-      ),
+    return AppBar(
+      backgroundColor: const Color(0xFF171717),
+      elevation: 0,
+      actions: [
+        IconButton(
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SearchScreen(),
+                ));
+          },
+          icon: const Icon(color: Colors.white, Icons.search),
+        ),
+      ],
     );
   }
 

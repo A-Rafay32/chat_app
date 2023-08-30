@@ -1,7 +1,5 @@
 import 'package:chat_app/auth/helper.dart';
-import 'package:chat_app/auth/view/login.dart';
 import 'package:chat_app/auth/view/widget_tree.dart';
-import 'package:chat_app/core/view/home_screen.dart';
 import 'package:chat_app/core/viewmodel/database_view_model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +13,7 @@ void main() async {
   if (kIsWeb) {
     await Firebase.initializeApp(
         options: FirebaseOptions(
+            storageBucket: constants.storageBucket,
             apiKey: constants.apiKey,
             appId: constants.appId,
             messagingSenderId: constants.messagingSenderId,
@@ -37,6 +36,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     Helper.isSignedIn();
+
     super.initState();
   }
 

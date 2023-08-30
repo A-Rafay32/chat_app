@@ -29,21 +29,35 @@ class GroupDB extends Database {
   }
 
   static void onSendMessage(String groupRoomId) async {
+    QuerySnapshot userSender = await Database.getUserQuerySnapshot(
+        Auth().auth.currentUser?.displayName ?? "");
+    // QuerySnapshot userReceiver =
+    //     await Database.getUserQuerySnapshot(receiverName);
+
     if (Database.msgController.text.isNotEmpty) {
       Map<String, dynamic> msgMap = {
         "sendBy": Auth().auth.currentUser?.displayName,
-        "message": Database.msgController.text.trim(),
+        "text": Database.msgController.text.trim(),
         "time": Timestamp.now(),
       };
+      // msgMap.clear();
+      Database.msgController.clear();
 
+      //add message to db
       await Database.firebaseFirestore
           .collection("groups")
           .doc(groupRoomId)
           .collection("chats")
           .add(msgMap);
+
+      // update recent message in both users
+
+      await Database.firebaseFirestore
+          .collection("groups")
+          .doc(groupRoomId)
+          .update({"recentMsg": msgMap});
+
       print("$msgMap sent");
-      // msgMap.clear();
-      Database.msgController.clear();
     } else {
       print("Can't send empty messages");
     }
@@ -118,5 +132,12 @@ class GroupDB extends Database {
     } on FirebaseException catch (e) {
       print("Couldn't add member $memberEmail: $e");
     }
+  }
+
+  static Future<String?> getUserImage(String userName) async {
+    QuerySnapshot user =
+        await Database.usersCollection.where("name", isEqualTo: userName).get();
+    Map<String, dynamic> data = user.docs.first.data() as Map<String, dynamic>;
+    return data["profileImg"];
   }
 }

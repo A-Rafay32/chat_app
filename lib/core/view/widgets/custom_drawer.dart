@@ -1,3 +1,4 @@
+import 'package:chat_app/core/view/user_profile_%20screen.dart';
 import 'package:chat_app/core/view/widgets/user_avatar.dart';
 import 'package:flutter/material.dart';
 
@@ -31,17 +32,22 @@ class CustomDrawer extends StatelessWidget {
             children: [
               Column(
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(
-                        Icons.arrow_back_ios,
-                        color: Colors.white,
-                        size: 20,
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(
+                          Icons.arrow_back_ios,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 56,
                       ),
-                      Text(
+                      const Text(
                         'Settings',
                         style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
@@ -50,25 +56,43 @@ class CustomDrawer extends StatelessWidget {
                   const SizedBox(
                     height: 30,
                   ),
-                  Row(
-                    children: [
-                      const UserAvatar(filename: 'img3.jpeg'),
-                      const SizedBox(
-                        width: 18,
-                      ),
-                      Text(
-                        '${Auth().auth.currentUser?.displayName}',
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 18),
-                      )
-                    ],
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => UserProfileScreen(image: ""),
+                          ));
+                    },
+                    child: Row(
+                      children: [
+                        UserAvatar(filename: ''),
+                        const SizedBox(
+                          width: 18,
+                        ),
+                        Text(
+                          '${Auth().auth.currentUser?.displayName}',
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 18),
+                        )
+                      ],
+                    ),
                   ),
                   const SizedBox(
                     height: 35,
                   ),
-                  const DrawerItem(
-                    title: 'Account',
-                    icon: Icons.key,
+                  GestureDetector(
+                    onTap: () {
+                      // Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //       builder: (context) => UserProfileScreen(image: ""),
+                      //     ));
+                    },
+                    child: const DrawerItem(
+                      title: 'Account',
+                      icon: Icons.key,
+                    ),
                   ),
                   const DrawerItem(title: 'Chats', icon: Icons.chat_bubble),
                   const DrawerItem(
@@ -86,8 +110,7 @@ class CustomDrawer extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () {
-                  Auth().signOut();
-                  Navigator.pop(context);
+                  Auth().signOut(context);
                 },
                 child: const Row(
                   children: [

@@ -15,7 +15,8 @@ class Auth extends ChangeNotifier {
   static Stream<User?> authStateChanges =
       FirebaseAuth.instance.authStateChanges();
 
-  User? user;
+  static User? user;
+  static Map<String, dynamic>? userMap;
   bool? isSignedIn;
 
   Future signIn(context) async {
@@ -47,7 +48,6 @@ class Auth extends ChangeNotifier {
             .user;
 
         if (user != null) {
-
           UserModel userModel = UserModel(
               status: "Unavailable",
               name: name,
@@ -65,8 +65,6 @@ class Auth extends ChangeNotifier {
             user!.updateDisplayName(name);
           }).catchError((error) => print("failed to create user: $error"));
 
-
-
           //pop out of Sign Up Screen
           Navigator.pop(context);
         }
@@ -78,10 +76,11 @@ class Auth extends ChangeNotifier {
     // notifyListeners();
   }
 
-  Future signOut() async {
+  Future signOut(context) async {
     try {
       await auth.signOut();
       print("${auth.currentUser?.email} signed out");
+      // Navigator.popUntil(context, (route) => false);
     } on FirebaseException catch (e) {
       print(e);
     }

@@ -49,9 +49,14 @@ class ConversationRow extends StatelessWidget {
                         const SizedBox(
                           height: 5,
                         ),
-                        Text(
-                          message,
-                          style: const TextStyle(color: Colors.black),
+                        Container(
+                          color: Colors.transparent,
+                          width: w * 0.8,
+                          child: Text(
+                            message,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Colors.black),
+                          ),
                         ),
                       ],
                     )
