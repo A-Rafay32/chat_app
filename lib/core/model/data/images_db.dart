@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:chat_app/core/utils/pick_images.dart';
+import 'package:chat_app/core/utils/snackbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
@@ -15,17 +16,21 @@ class ImageDB {
       FirebaseStorage.instance.ref().child("chatroom");
   final Reference groupRef = FirebaseStorage.instance.ref().child("groups");
 
-  void onSendImages(Reference ref, String RoomId) async {
+  static XFile? selectedImage;
+
+  static void onSendImages(Reference ref, String RoomId) async {
     try {
+      String downloadUrl = '';
       // Directory appDir = await getApplicationDocumentsDirectory();
-      XFile? file = await PickImage().pickImage(ImageSource.gallery);
+      XFile? pickedFile = await PickImage().pickImage(ImageSource.gallery);
       // "$RoomId/${file.name}"
-      if (file != null) {
+      if (pickedFile != null) {
+        selectedImage = pickedFile;
         final task =
-            await ref.child("$RoomId/${file.name}").putFile(File(file.path));
+            await ref.child("$RoomId/").putFile(File(selectedImage!.path));
 
         //get Download url
-        String downloadUrl = await ref.getDownloadURL();
+        downloadUrl = await ref.getDownloadURL();
         print("downloadUrl: $downloadUrl");
         print("RoomId: $RoomId");
 
@@ -35,7 +40,7 @@ class ImageDB {
           "text": downloadUrl.toString(),
           "time": Timestamp.now(),
         }).then((value) {
-          print("Image ${file.name} have been Uploaded");
+          print("Image ${selectedImage!.name} have been Uploaded");
           return null;
         });
       } else {
@@ -47,7 +52,8 @@ class ImageDB {
     }
   }
 
-  static void updateUserProfileImg() async {
+  static void updateUserProfileImg(context) async {
+    String downloadUrl = '';
     try {
       QuerySnapshot user = await Database.usersCollection
           .where("email", isEqualTo: Auth().auth.currentUser?.email ?? "")
@@ -55,16 +61,25 @@ class ImageDB {
 
       XFile? file = await PickImage().pickImage(ImageSource.gallery);
       if (file != null) {
-        final ref = FirebaseStorage.instance
-            .ref("userprofile/${Auth().auth.currentUser?.displayName}");
-        await ref.putFile(File(file.path));
-        String newImage = await userProfileRef.getDownloadURL();
+        selectedImage = file;
+
+        final storageRef = FirebaseStorage.instance
+            .ref("userprofile/${Auth().auth.currentUser?.displayName}")
+            .child(selectedImage!.name);
+
+        final task = storageRef.putFile(File(selectedImage!.path));
+
+        downloadUrl = await storageRef.getDownloadURL();
+
         await Database.usersCollection
             .doc(user.docs.first.id)
-            .update({"profileImg": newImage});
-        await Auth().auth.currentUser?.updatePhotoURL(newImage);
+            .update({"profileImg": downloadUrl});
+
+        await Auth().auth.currentUser?.updatePhotoURL(downloadUrl);
+        successSnackBar(context, "Profile Image updated");
       }
     } on FirebaseException catch (e) {
+      errorSnackBar(context, "Couldnot update Image");
       print("could not update user ProfileImg $e");
     }
   }

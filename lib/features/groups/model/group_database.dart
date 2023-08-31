@@ -1,4 +1,5 @@
 import 'package:chat_app/core/model/data/database.dart';
+import 'package:chat_app/core/utils/snackbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../auth/view_model/auth.dart';
@@ -71,7 +72,7 @@ class GroupDB extends Database {
         .snapshots();
   }
 
-  static void createGroup(String groupName) async {
+  static void createGroup(String groupName, context) async {
     try {
       //create group
       DocumentReference groupDoc = await groupCollection.add({
@@ -95,6 +96,7 @@ class GroupDB extends Database {
         "groups": FieldValue.arrayUnion([groupDoc.id])
       });
     } on FirebaseException catch (e) {
+      errorSnackBar(context, "Failed to create Group: $groupName");
       print("Group creation Failed : ${e.message}");
     }
   }

@@ -1,5 +1,3 @@
-import 'dart:js_interop';
-
 import 'package:chat_app/core/model/model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -64,13 +62,13 @@ class Database {
       print("$msgMap sent");
 
       // update recent message in both users
-      if (!userSender.isNull) {
+      if (userSender.docs.isNotEmpty) {
         await firebaseFirestore
             .collection("users")
             .doc(userSender.docs.first.id)
             .update({"recentMsg": msgMap});
       }
-      if (!userReceiver.isNull) {
+      if (userReceiver.docs.isNotEmpty) {
         await firebaseFirestore
             .collection("users")
             .doc(userReceiver.docs.first.id)

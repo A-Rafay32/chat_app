@@ -2,7 +2,7 @@ import 'package:chat_app/core/view/widgets/conversation_row.dart';
 import 'package:chat_app/core/view/widgets/custom_app_bar.dart';
 import 'package:chat_app/core/view/widgets/custom_drawer.dart';
 import 'package:chat_app/core/view/widgets/tab_navigation_bar.dart';
-import 'package:chat_app/features/groups/group_utils.dart';
+import 'package:chat_app/features/groups/group_utils/group_dialog.dart';
 import 'package:chat_app/features/groups/model/group_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +23,10 @@ class _GroupScreenState extends State<GroupScreen> {
   @override
   void initState() {
     super.initState();
+  }
+
+  String formatDate(DateTime date) {
+    return "${date.hour}:${date.minute}";
   }
 
   @override
@@ -88,7 +92,7 @@ class _GroupScreenState extends State<GroupScreen> {
                               Timestamp time = snapshot.data?.docs[index]
                                   ["recentMsg"]["time"];
                               return ConversationRow(
-                                  time: time.seconds.toString(),
+                                  time: formatDate(time.toDate()),
                                   name: snapshot.data?.docs[index]["groupName"],
                                   message: snapshot.data?.docs[index]
                                       ["recentMsg"]["text"],

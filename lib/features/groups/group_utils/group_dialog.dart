@@ -1,7 +1,68 @@
+import "package:chat_app/core/utils/snackbar.dart";
 import "package:chat_app/res/colors.dart";
 import "package:flutter/material.dart";
 
-import "model/group_database.dart";
+import '../model/group_database.dart';
+
+Future<dynamic> showGroupInfoDialog({context, name, admin, members}) {
+  return showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      actionsAlignment: MainAxisAlignment.start,
+      actionsPadding: const EdgeInsets.symmetric(horizontal: 8),
+      actions: [
+        TextButton(
+            style: const ButtonStyle(
+                padding: MaterialStatePropertyAll(EdgeInsets.all(10)),
+                backgroundColor: MaterialStatePropertyAll(
+                    Color.fromARGB(255, 229, 104, 102))),
+            onPressed: () {},
+            child: const SizedBox(
+              width: 150,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.logout,
+                    color: Colors.white,
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text(
+                    "Exit group",
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                ],
+              ),
+            )),
+      ],
+      backgroundColor: Colors.white,
+      contentPadding: const EdgeInsets.all(20),
+      elevation: 2,
+      content: Container(
+        // padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Group Name : $name",
+                style: const TextStyle(color: Colors.black, fontSize: 18)),
+            const SizedBox(
+              height: 20,
+            ),
+            Text("Group Admin : $admin",
+                style: const TextStyle(color: Colors.black, fontSize: 18)),
+            const SizedBox(
+              height: 20,
+            ),
+            Text("Group Members :$members  ",
+                style: const TextStyle(color: Colors.black, fontSize: 18)),
+          ],
+        ),
+      ),
+    ),
+  );
+}
 
 Future<dynamic> showCreateGroupDialog(
     context, TextEditingController controller) {
@@ -27,12 +88,13 @@ Future<dynamic> showCreateGroupDialog(
             onPressed: () {
               // create group
               if (controller.text.isNotEmpty) {
-                GroupDB.createGroup(controller.text.trim());
+                GroupDB.createGroup(controller.text.trim(), context);
+                //showSnackbar
+                successSnackBar(
+                    context, "Group: ${controller.text.trim()}  created");
                 controller.clear();
                 Navigator.pop(context);
               }
-
-              //showSnackbar
             },
             child: const Text(
               "OK",

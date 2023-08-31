@@ -66,7 +66,7 @@ class CustomDrawer extends StatelessWidget {
                     },
                     child: Row(
                       children: [
-                        UserAvatar(filename: ''),
+                        UserAvatar(filename: Auth.userMap?["profileImg"]),
                         const SizedBox(
                           width: 18,
                         ),

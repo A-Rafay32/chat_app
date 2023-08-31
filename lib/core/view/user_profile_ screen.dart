@@ -63,7 +63,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          UserProfileImageWidget(h: h, w: w, image: widget.image),
+          UserProfileImageWidget(
+            h: h,
+            w: w,
+          ),
           const SizedBox(
             height: 20,
           ),
@@ -118,16 +121,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 }
 
 class UserProfileImageWidget extends StatelessWidget {
-  const UserProfileImageWidget({
+  UserProfileImageWidget({
     super.key,
     required this.h,
     required this.w,
-    required this.image,
   });
 
   final double h;
   final double w;
-  final String image;
+  final String image = Auth.userMap?["profileImg"];
 
   @override
   Widget build(BuildContext context) {
@@ -149,8 +151,8 @@ class UserProfileImageWidget extends StatelessWidget {
             height: 20,
           ),
           GestureDetector(
-            onTap: (){
-              ImageDB.updateUserProfileImg();
+            onTap: () {
+              ImageDB.updateUserProfileImg(context);
             },
             child: Row(
               children: [

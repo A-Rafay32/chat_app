@@ -51,7 +51,7 @@ class ConversationRow extends StatelessWidget {
                         ),
                         Container(
                           color: Colors.transparent,
-                          width: w * 0.8,
+                          width: w * 0.55,
                           child: Text(
                             message,
                             overflow: TextOverflow.ellipsis,
@@ -59,7 +59,7 @@ class ConversationRow extends StatelessWidget {
                           ),
                         ),
                       ],
-                    )
+                    ),
                   ],
                 ),
                 Padding(

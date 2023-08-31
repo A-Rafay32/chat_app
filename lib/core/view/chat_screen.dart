@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
 
 import '../../auth/view_model/auth.dart';
+import '../../features/groups/group_utils/group_popup_menu.dart';
 import '../../features/groups/model/group_database.dart';
-import '../../features/groups/view/add_member_screen.dart';
 import '../../res/colors.dart';
 import '../model/data/database.dart';
 import '../model/model.dart';
@@ -76,45 +76,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         icon: const Icon(
                             color: secondaryColor,
                             Icons.arrow_back_ios_new_sharp)),
-                    if (Auth().auth.currentUser!.displayName ==
-                        widget.objectMap["admin"])
-                      PopupMenuButton(
-                        color: Colors.white,
-                        elevation: 2,
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                              child: TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => AddMemberScreen(
-                                            groupDocId: widget.documentId,
-                                          ),
-                                        ));
-                                  },
-                                  child: const Text(
-                                    "Add participant",
-                                    style: TextStyle(
-                                        color: Colors.black, fontSize: 15),
-                                  ))),
-                          PopupMenuItem(
-                              child: TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => AddMemberScreen(
-                                            groupDocId: widget.documentId,
-                                          ),
-                                        ));
-                                  },
-                                  child: const Text(
-                                    "Set Group Image ",
-                                    style: TextStyle(
-                                        color: Colors.black, fontSize: 15),
-                                  )))
-                        ],
+                    if (widget.chatType == ChatType.group)
+                      GroupPopupMenuButton(
+                        widget: widget,
                       ),
                   ]),
             ),
@@ -282,10 +246,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                   suffixIcon: IconButton(
                                       onPressed: () {
                                         widget.chatType == ChatType.group
-                                            ? ImageDB().onSendImages(
+                                            ? ImageDB.onSendImages(
                                                 ImageDB().groupRef,
                                                 widget.documentId)
-                                            : ImageDB().onSendImages(
+                                            : ImageDB.onSendImages(
                                                 ImageDB().chatRoomRef,
                                                 widget.documentId);
                                       },

@@ -5,11 +5,54 @@ import '../../features/groups/view/user_tile.dart';
 import '../../res/colors.dart';
 import '../model/data/database.dart';
 
-class SearchScreen extends StatelessWidget {
-  SearchScreen({super.key});
+class SearchScreen extends StatefulWidget {
+  const SearchScreen({super.key});
 
+  @override
+  State<SearchScreen> createState() => _SearchScreenState();
+}
+
+class _SearchScreenState extends State<SearchScreen> {
   TextEditingController searchController = TextEditingController();
-  String? name;
+
+  Stream<QuerySnapshot>? searchStream;
+  QuerySnapshot? searchResult;
+  String searchedValue = "";
+  List<Map<String, dynamic>> searchMap = [];
+
+  void init() async {
+    if (searchedValue == "") {
+      print(Database.usersCollection.path);
+      searchResult = await Database.usersCollection.get();
+    } else {
+      searchResult = await Database.usersCollection
+          .where("name", isEqualTo: searchedValue)
+          .limit(1)
+          .get();
+    }
+    for (int i = 0; i < searchResult!.docs.length; ++i) {
+      searchMap.add(searchResult!.docs[i].data() as Map<String, dynamic>);
+    }
+
+    print("searchMap : $searchMap");
+  }
+
+  void initSearch() {
+    if (searchedValue == "") {
+      searchStream = Database.usersCollection.snapshots();
+    } else {
+      searchStream = Database.usersCollection
+          .where("name", isEqualTo: searchedValue)
+          .snapshots();
+    }
+  }
+
+  @override
+  void initState() {
+    init();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     double h = MediaQuery.sizeOf(context).height;
@@ -45,8 +88,23 @@ class SearchScreen extends StatelessWidget {
                 ),
                 TextField(
                   style: const TextStyle(color: Colors.white),
+                  onSubmitted: (value) {
+                    // searchedValue = value;
+                    // print(searchedValue);
+                    // searchStream = Database.usersCollection
+                    //     .where("name", isEqualTo: searchedValue)
+                    //     .snapshots();
+                  },
                   onChanged: (value) {
-                    name = value;
+                    searchedValue = value;
+                    print(searchedValue);
+                    init();
+                    // searchStream = Database.usersCollection
+                    //     .where("name", isEqualTo: searchedValue)
+                    //     .snapshots();
+
+                    // searchMap =
+                    //     searchResult!.docs.first.data() as Map<String, dynamic>;
                   },
                   cursorColor: Colors.white,
                   controller: searchController,
@@ -68,11 +126,25 @@ class SearchScreen extends StatelessWidget {
                       topRight: Radius.circular(40)),
                   color: Color(0xFFEFFFFC),
                 ),
-                child: StreamBuilder<QuerySnapshot>(
-                  // padding: const EdgeInsets.only(left: 25),
-                  stream: Database.usersCollection
-                      .where("name", isEqualTo: name)
-                      .snapshots(),
+                // child: Text(searchMap[0]["name"])
+                // ListView.builder(
+                //     padding: const EdgeInsets.only(left: 25),
+                //     itemCount: searchMap.length,
+                //     itemBuilder: (context, index) {
+                //       print(searchMap.length);
+                //       print(searchMap[index]["status"]);
+                //       print(searchMap[index]["name"]);
+                //       print(searchMap[index]["profileImg"]);
+
+                // UserTile(
+                //   status: searchMap[index]["status"],
+                //   name: searchMap[index]["name"],
+                //   filename: searchMap[index]["profileImg"],
+                // );
+                // }),
+
+                child: StreamBuilder(
+                  stream: Database.usersCollection.snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Column(
@@ -103,15 +175,27 @@ class SearchScreen extends StatelessWidget {
                             itemCount: snapshot.data!.docs.length,
                             itemBuilder: (context, index) {
                               return UserTile(
-                                status: snapshot.data!.docs[index]["status"],
-                                name: snapshot.data!.docs[index]["name"],
-                                filename: snapshot.data!.docs[index]
+                                status: snapshot.data?.docs[index]["status"],
+                                name: snapshot.data?.docs[index]["name"],
+                                filename: snapshot.data?.docs[index]
                                     ["profileImg"],
                               );
                             }),
                       );
                     } else {
-                      return Container();
+                      return Column(
+                        children: [
+                          const SizedBox(
+                            height: 300,
+                          ),
+                          Container(
+                            child: const Text(
+                              "User Doesnot exist",
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ),
+                        ],
+                      );
                     }
                   },
                 ),
@@ -122,19 +206,24 @@ class SearchScreen extends StatelessWidget {
   }
 
   InputDecoration TextFieldDecoration() {
-    return const InputDecoration(
-      contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 8),
+    return InputDecoration(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
       hintText: "Search",
-      hintStyle: TextStyle(color: Colors.white60, fontSize: 17),
-      border: UnderlineInputBorder(
+      suffixIcon: IconButton(
+        onPressed: () {},
+        icon: const Icon(Icons.search),
+        color: Colors.grey,
+      ),
+      hintStyle: const TextStyle(color: Colors.white60, fontSize: 17),
+      border: const UnderlineInputBorder(
         borderSide: BorderSide(color: Colors.white),
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
-      enabledBorder: UnderlineInputBorder(
+      enabledBorder: const UnderlineInputBorder(
         borderSide: BorderSide(color: Colors.white),
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
-      focusedBorder: UnderlineInputBorder(
+      focusedBorder: const UnderlineInputBorder(
         borderSide: BorderSide(color: Colors.white),
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),

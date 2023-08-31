@@ -179,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: () {},
         ),
       ),
-      drawer: const CustomDrawer(),
+      drawer: CustomDrawer(),
     );
   }
 }
