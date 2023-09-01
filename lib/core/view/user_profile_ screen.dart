@@ -68,7 +68,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             w: w,
           ),
           const SizedBox(
-            height: 20,
+            height: 30,
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),

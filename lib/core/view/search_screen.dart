@@ -59,6 +59,7 @@ class _SearchScreenState extends State<SearchScreen> {
     // double w = MediaQuery.sizeOf(context).height;
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         backgroundColor: const Color(0xFF171717),
         leading: IconButton(
             onPressed: () {
@@ -71,7 +72,7 @@ class _SearchScreenState extends State<SearchScreen> {
         children: [
           Container(
             padding: const EdgeInsets.only(
-              top: 20,
+              top: 0,
               left: 5,
               right: 5,
             ),
@@ -85,6 +86,9 @@ class _SearchScreenState extends State<SearchScreen> {
                         fontWeight: FontWeight.w500,
                         color: Colors.white),
                   ),
+                ),
+                const SizedBox(
+                  height: 30,
                 ),
                 TextField(
                   style: const TextStyle(color: Colors.white),

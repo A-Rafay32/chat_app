@@ -1,6 +1,6 @@
+import 'package:chat_app/res/colors.dart';
 import 'package:flutter/material.dart';
-
-import '../../../res/colors.dart';
+import 'package:flutter_svg/svg.dart';
 
 class CustomTextField extends StatefulWidget {
   CustomTextField({
@@ -21,6 +21,13 @@ class CustomTextField extends StatefulWidget {
 
 class _CustomTextFieldState extends State<CustomTextField> {
   late FocusNode _focusNode;
+  bool isObscure = true;
+
+  void setObscureText() {
+    setState(() {
+      isObscure = !isObscure;
+    });
+  }
 
   @override
   void initState() {
@@ -39,13 +46,40 @@ class _CustomTextFieldState extends State<CustomTextField> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
       child: TextFormField(
+        obscureText: widget.hintText == "Password" ? isObscure : false,
         cursorColor: Colors.black,
         style: const TextStyle(color: Colors.black),
         controller: widget.controller,
+        onChanged: (value) {
+          print(value);
+        },
         focusNode: _focusNode,
         decoration: InputDecoration(
-          prefixIcon: const Icon(Icons.password_outlined),
-          prefixIconColor: _focusNode.hasFocus ? Colors.black : Colors.grey,
+          suffixIcon: widget.hintText == "Email"
+              ? Icon(Icons.email_outlined,
+                  color: _focusNode.hasFocus ? primaryColor : Colors.grey)
+              : widget.hintText == "Password"
+                  ? IconButton(
+                      onPressed: () => setObscureText(),
+                      icon: (isObscure)
+                          ? SvgPicture.asset("assets/icons/eye_closed.svg",
+                              height: 30,
+                              width: 30,
+                              colorFilter: _focusNode.hasFocus
+                                  ? const ColorFilter.mode(
+                                      primaryColor, BlendMode.srcIn)
+                                  : const ColorFilter.mode(
+                                      Colors.grey, BlendMode.srcIn))
+                          : SvgPicture.asset("assets/icons/eye_open.svg",
+                              height: 30,
+                              width: 30,
+                              colorFilter: _focusNode.hasFocus
+                                  ? const ColorFilter.mode(
+                                      primaryColor, BlendMode.srcIn)
+                                  : const ColorFilter.mode(
+                                      Colors.grey, BlendMode.srcIn)),
+                    )
+                  : null,
           focusColor: primaryColor,
           hintText: widget.hintText,
           focusedBorder: const UnderlineInputBorder(

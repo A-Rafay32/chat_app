@@ -1,7 +1,9 @@
-import 'package:chat_app/core/model/data/images_db.dart';
-import 'package:chat_app/core/view/widgets/user_avatar.dart';
+import 'package:chat_app/core/view/widgets/chat_text_field.dart';
+import 'package:chat_app/core/view/widgets/display_image_widget.dart';
+import 'package:chat_app/core/view/widgets/display_text_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:grouped_list/grouped_list.dart';
 
 import '../../auth/view_model/auth.dart';
@@ -45,11 +47,21 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  ScrollController scrollController = ScrollController();
+
+  void scrollDown() {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      scrollController.animateTo(scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 10), curve: Curves.easeOut);
+    });
+  }
+
   @override
   void initState() {
     widget.chatType == ChatType.group
         ? GroupDB.getGroupMessages(widget.documentId)
         : Database.getMessages(widget.documentId);
+    scrollDown();
     super.initState();
   }
 
@@ -58,6 +70,7 @@ class _ChatScreenState extends State<ChatScreen> {
     double h = MediaQuery.sizeOf(context).height;
     double w = MediaQuery.sizeOf(context).width;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Container(
         height: h,
         width: w,
@@ -113,7 +126,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelMedium
-                                    ?.copyWith(color: Colors.grey.shade800))
+                                    ?.copyWith(color: const Color.fromARGB(255, 8, 3, 3)))
                           ],
                         ),
                       ),
@@ -148,6 +161,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               if (snapshot.data != null) {
                                 return GroupedListView<QueryDocumentSnapshot,
                                     Timestamp>(
+                                  controller: scrollController,
                                   padding: const EdgeInsets.all(8),
                                   elements: snapshot.data!.docs,
                                   groupBy: (element) => element["time"],
@@ -157,69 +171,33 @@ class _ChatScreenState extends State<ChatScreen> {
                                           const SizedBox(),
                                   itemBuilder: (context,
                                           QueryDocumentSnapshot messages) =>
-                                      Align(
-                                    alignment: messages["sendBy"] ==
-                                            Auth().auth.currentUser?.displayName
-                                        ? Alignment.centerRight
-                                        : Alignment.centerLeft,
-                                    child: checkForImage(messages["text"]) ==
-                                            true
-                                        ? Image.network(messages["text"])
-                                        : Row(
-                                            children: [
-                                              const SizedBox(
-                                                width: 5,
+                                      Container(
+                                    color: Colors.transparent,
+                                    child:
+                                        checkForImage(messages["text"]) == true
+                                            ? DisplayImageWidget(
+                                                alignment: messages["sendBy"] ==
+                                                        Auth()
+                                                            .auth
+                                                            .currentUser
+                                                            ?.displayName
+                                                    ? Alignment.centerRight
+                                                    : Alignment.centerLeft,
+                                                messages: messages,
+                                                widget: widget,
+                                              )
+                                            : DisplayTextWidget(
+                                                alignment: messages["sendBy"] ==
+                                                        Auth()
+                                                            .auth
+                                                            .currentUser
+                                                            ?.displayName
+                                                    ? Alignment.centerRight
+                                                    : Alignment.centerLeft,
+                                                messages: messages,
+                                                w: w,
+                                                widget: widget,
                                               ),
-                                              UserAvatar(
-                                                  radius: 14,
-                                                  filename: widget.chatType ==
-                                                          ChatType.group
-                                                      ? ""
-                                                      : widget.objectMap[
-                                                          "profileImg"]),
-                                              const SizedBox(
-                                                width: 5,
-                                              ),
-                                              Container(
-                                                  margin:
-                                                      const EdgeInsets.all(12),
-                                                  padding:
-                                                      const EdgeInsets.all(12),
-                                                  decoration: BoxDecoration(
-                                                      color: messages[
-                                                                  "sendBy"] ==
-                                                              Auth()
-                                                                  .auth
-                                                                  .currentUser
-                                                                  ?.displayName
-                                                          ? primaryColor
-                                                          : Colors.white,
-                                                      borderRadius:
-                                                          const BorderRadius
-                                                              .only(
-                                                        topLeft:
-                                                            Radius.circular(20),
-                                                        topRight:
-                                                            Radius.circular(20),
-                                                        bottomRight:
-                                                            Radius.circular(20),
-                                                      )),
-                                                  // elevation: 8.0,
-                                                  child: Text(
-                                                    messages["text"],
-                                                    style: TextStyle(
-                                                      color: messages[
-                                                                  "sendBy"] ==
-                                                              Auth()
-                                                                  .auth
-                                                                  .currentUser
-                                                                  ?.displayName
-                                                          ? Colors.white
-                                                          : primaryColor,
-                                                    ),
-                                                  )),
-                                            ],
-                                          ),
                                   ),
                                 );
                               } else {
@@ -227,74 +205,17 @@ class _ChatScreenState extends State<ChatScreen> {
                               }
                             }),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Container(
-                            height: h * 0.06,
-                            width: w * 0.8,
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: TextField(
-                              style: const TextStyle(
-                                  fontSize: 18, color: Colors.white),
-                              cursorColor: Colors.white,
-                              cursorHeight: 18,
-                              controller: Database.msgController,
-                              decoration: InputDecoration(
-                                  contentPadding:
-                                      const EdgeInsets.symmetric(vertical: 5),
-                                  suffixIcon: IconButton(
-                                      onPressed: () {
-                                        widget.chatType == ChatType.group
-                                            ? ImageDB.onSendImages(
-                                                ImageDB().groupRef,
-                                                widget.documentId)
-                                            : ImageDB.onSendImages(
-                                                ImageDB().chatRoomRef,
-                                                widget.documentId);
-                                      },
-                                      icon: const Icon(Icons.image)),
-                                  suffixIconColor: Colors.white,
-                                  prefixIconColor: Colors.white,
-                                  prefixIcon:
-                                      const Icon(Icons.emoji_emotions_outlined),
-                                  enabledBorder: const OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.transparent),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(20)),
-                                  ),
-                                  focusedBorder: const OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.transparent),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(20)),
-                                  ),
-                                  filled: true,
-                                  fillColor: primaryColor),
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 20, horizontal: 5),
-                            decoration: const BoxDecoration(
-                                color: primaryColor, shape: BoxShape.circle),
-                            child: IconButton(
-                                onPressed: () {
-                                  widget.chatType == ChatType.group
-                                      ? GroupDB.onSendMessage(widget.documentId)
-                                      : Database.onSendMessage(
-                                          widget.documentId,
-                                          widget.objectMap["name"]);
-                                },
-                                icon: const Icon(
-                                    color: Colors.white, Icons.send)),
-                          )
-                        ],
+                      SizedBox(
+                        height: h * 0.07,
                       )
                     ],
                   ),
-                ))
+                )),
+            Positioned(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 0,
+                right: 0,
+                child: ChatTextField(h: h, w: w, widget: widget))
           ],
         ),
       ),

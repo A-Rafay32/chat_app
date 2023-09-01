@@ -2,15 +2,16 @@ import 'package:chat_app/auth/view/widgets/textfield.dart';
 import 'package:chat_app/auth/view_model/auth.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../res/colors.dart';
 
 class SignUpScreen extends StatelessWidget {
-  SignUpScreen({super.key});
+  const SignUpScreen({super.key});
 
-  TextEditingController passController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController nameController = TextEditingController();
+  // TextEditingController passController = TextEditingController();
+  // TextEditingController emailController = TextEditingController();
+  // TextEditingController nameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -37,34 +38,35 @@ class SignUpScreen extends StatelessWidget {
                       )),
                 ),
                 Positioned(
-                    top: 30,
-                    left: 30,
+                    top: 20,
+                    left: 10,
                     child: IconButton(
                       onPressed: () => Navigator.pop(context),
                       icon:
                           const Icon(color: Colors.white, Icons.arrow_back_ios),
                     ))
               ]),
+              const SizedBox(
+                height: 20,
+              ),
               CustomTextField(
                   validator: (name) {
-                    (name!.length < 8)
+                    return (name!.length < 8)
                         ? "Name should be 8 characters long"
                         : null;
-                    return null;
                   },
                   hintText: "Full Name",
-                  controller: nameController
-                  // Provider.of<Auth>(context, listen: false).nameController
-                  ),
+                  controller:
+                      Provider.of<Auth>(context, listen: false).nameController),
               CustomTextField(
                 validator: (email) {
-                  (email != null && !EmailValidator.validate(email.toString()))
+                  return (email != null &&
+                          !EmailValidator.validate(email.toString()))
                       ? "Enter a correct email"
                       : null;
-                  return null;
                 },
-                controller: emailController,
-                // Provider.of<Auth>(context, listen: false).emailController,
+                controller:
+                    Provider.of<Auth>(context, listen: false).emailController,
                 hintText: "Email",
               ),
               CustomTextField(
@@ -75,61 +77,43 @@ class SignUpScreen extends StatelessWidget {
                   }
                   return null;
                 },
-                controller: passController,
-                // Provider.of<Auth>(context, listen: false).passController,
+                controller:
+                    Provider.of<Auth>(context, listen: false).passController,
                 hintText: "Password",
               ),
               Expanded(child: Container()),
-              Stack(children: [
-                Container(
-                  height: h * 0.3,
-                  decoration: const BoxDecoration(
-                      color: backgroundColor,
-                      borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(500),
-                        topLeft: Radius.circular(500),
-                        bottomLeft: Radius.circular(500),
-                        // bottomRight: Radius.circular(500),
-                      )),
-                ),
-                Positioned(
-                  left: 50,
-                  top: 50,
-                  bottom: 50,
-                  right: 50,
-                  child: GestureDetector(
-                    onTap: () {
-                      Auth().signUp(
-                          context: context,
-                          email: emailController.text.trim(),
-                          name: nameController.text.trim(),
-                          password: passController.text.trim());
-                    },
+              GestureDetector(
+                onTap: () {
+                  Provider.of<Auth>(context, listen: false).signUp(
+                    context,
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Container(
+                    decoration: const BoxDecoration(
+                        color: primaryColor,
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        )),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Container(
-                        decoration: const BoxDecoration(
-                            color: primaryColor,
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(20),
-                              bottomRight: Radius.circular(20),
-                              topRight: Radius.circular(20),
-                            )),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: h * 0.018,
-                            horizontal: w * 0.2,
-                          ),
-                          child: const Text(
-                            "Sign Up",
-                            style: TextStyle(fontSize: 19, color: Colors.white),
-                          ),
-                        ),
+                      padding: EdgeInsets.symmetric(
+                        vertical: h * 0.018,
+                        horizontal: w * 0.3,
+                      ),
+                      child: const Text(
+                        "Sign up",
+                        style: TextStyle(fontSize: 19, color: Colors.white),
                       ),
                     ),
                   ),
-                )
-              ]),
+                ),
+              ),
+              const SizedBox(
+                height: 40,
+              ),
             ],
           ),
         ));

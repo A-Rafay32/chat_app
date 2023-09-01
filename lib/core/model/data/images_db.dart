@@ -18,7 +18,7 @@ class ImageDB {
 
   static XFile? selectedImage;
 
-  static void onSendImages(Reference ref, String RoomId) async {
+  static void onSendImages(Reference ref, String RoomId, context) async {
     try {
       String downloadUrl = '';
       // Directory appDir = await getApplicationDocumentsDirectory();
@@ -26,11 +26,12 @@ class ImageDB {
       // "$RoomId/${file.name}"
       if (pickedFile != null) {
         selectedImage = pickedFile;
-        final task =
-            await ref.child("$RoomId/").putFile(File(selectedImage!.path));
-
+        final storageRef =
+            ref.child("$RoomId/").child("${selectedImage!.name}/");
+        storageRef.putFile(File(selectedImage!.path));
         //get Download url
-        downloadUrl = await ref.getDownloadURL();
+        downloadUrl = await storageRef.getDownloadURL();
+
         print("downloadUrl: $downloadUrl");
         print("RoomId: $RoomId");
 
@@ -45,9 +46,11 @@ class ImageDB {
         });
       } else {
         //snackbar
+
         print("Failed to Pick the Image");
       }
     } on FirebaseException catch (e) {
+      errorSnackBar(context, "Could not send the image");
       print("Image failed to upload $e");
     }
   }
@@ -67,7 +70,7 @@ class ImageDB {
             .ref("userprofile/${Auth().auth.currentUser?.displayName}")
             .child(selectedImage!.name);
 
-        final task = storageRef.putFile(File(selectedImage!.path));
+        storageRef.putFile(File(selectedImage!.path));
 
         downloadUrl = await storageRef.getDownloadURL();
 

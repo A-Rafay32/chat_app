@@ -18,9 +18,8 @@ class LoginScreen extends StatelessWidget {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: secondaryColor,
-      body: SizedBox(
-        // padding: const EdgeInsets.only(right: 20),
-
+      body: Container(
+        color: Colors.transparent,
         height: size.height,
         width: size.width,
         child: Column(
@@ -69,9 +68,6 @@ class LoginScreen extends StatelessWidget {
                     Provider.of<Auth>(context, listen: false).passController,
                 hintText: "Password",
               ),
-              const SizedBox(
-                height: 10,
-              ),
               TextButton(
                 onPressed: () {},
                 child: const Text(
@@ -85,7 +81,7 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(
-                height: 20,
+                height: 25,
               ),
               GestureDetector(
                 onTap: () {
@@ -107,7 +103,7 @@ class LoginScreen extends StatelessWidget {
                         horizontal: size.width * 0.3,
                       ),
                       child: const Text(
-                        "Sign up",
+                        "Sign In",
                         style: TextStyle(fontSize: 19, color: Colors.white),
                       ),
                     ),
@@ -128,9 +124,6 @@ class LoginScreen extends StatelessWidget {
               ),
               Row(
                 children: [
-                  // const SizedBox(
-                  //   width: 20,
-                  // ),
                   SignInOptions(
                     topLeft: const Radius.circular(20),
                     topRight: const Radius.circular(0),
@@ -151,9 +144,9 @@ class LoginScreen extends StatelessWidget {
                   // )
                 ],
               ),
-              // const SizedBox(
-              //   height: 20,
-              // ),
+              const SizedBox(
+                height: 30,
+              ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: size.width * 0.18),
                 child: Container(
@@ -161,22 +154,25 @@ class LoginScreen extends StatelessWidget {
                   text: TextSpan(
                       text: "Don't have an account? ",
                       style: TextStyle(
-                          color: Colors.black, fontSize: size.height * 0.024),
+                          color: Colors.black, fontSize: size.height * 0.021),
                       children: <TextSpan>[
                         TextSpan(
                             text: "Sign up ",
                             style: TextStyle(
                                 color: primaryColor,
-                                fontSize: size.height * 0.024),
+                                fontSize: size.height * 0.021),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) =>
-                                         SignUpScreen()));
+                                        const SignUpScreen()));
                               })
                       ]),
                 )),
               ),
+              const SizedBox(
+                height: 20,
+              )
             ]),
       ),
     );
