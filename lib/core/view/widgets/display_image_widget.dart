@@ -39,48 +39,56 @@ class DisplayImageWidget extends StatelessWidget {
               const SizedBox(
                 width: 5,
               ),
-              CachedNetworkImage(
-                imageUrl: messages["text"],
-                imageBuilder: (context, imageProvider) => Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: imageProvider,
-                      fit: BoxFit.cover,
+              Container(
+                margin: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(12),
+                child: CachedNetworkImage(
+                  imageUrl: messages["text"],
+                  imageBuilder: (context, imageProvider) => Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: imageProvider,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                ),
-                placeholder: (context, url) => Container(
-                  padding: const EdgeInsets.all(40),
-                  child: const CircularProgressIndicator(
-                    color: primaryColor,
+                  placeholder: (context, url) => Container(
+                    padding: const EdgeInsets.all(40),
+                    child: const CircularProgressIndicator(
+                      color: primaryColor,
+                    ),
                   ),
+                  height: 200,
+                  width: 200,
                 ),
-                height: 200,
-                width: 200,
               ),
             ]
           : [
               const SizedBox(
                 width: 5,
               ),
-              CachedNetworkImage(
-                imageUrl: messages["text"],
-                imageBuilder: (context, imageProvider) => Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: imageProvider,
-                      fit: BoxFit.cover,
+              Container(
+                margin: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(12),
+                child: CachedNetworkImage(
+                  imageUrl: messages["text"],
+                  imageBuilder: (context, imageProvider) => Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: imageProvider,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                ),
-                placeholder: (context, url) => Container(
-                  padding: const EdgeInsets.all(40),
-                  child: const CircularProgressIndicator(
-                    color: primaryColor,
+                  placeholder: (context, url) => Container(
+                    padding: const EdgeInsets.all(40),
+                    child: const CircularProgressIndicator(
+                      color: primaryColor,
+                    ),
                   ),
+                  height: 200,
+                  width: 200,
                 ),
-                height: 200,
-                width: 200,
               ),
               const SizedBox(
                 width: 5,

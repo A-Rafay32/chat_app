@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chat_app/core/model/model.dart';
 import 'package:chat_app/core/utils/pick_images.dart';
 import 'package:chat_app/core/utils/snackbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,7 +19,8 @@ class ImageDB {
 
   static XFile? selectedImage;
 
-  static void onSendImages(Reference ref, String RoomId, context) async {
+  static void onSendImages(
+      Reference ref, String RoomId, context, ChatType chatType) async {
     try {
       String downloadUrl = '';
       // Directory appDir = await getApplicationDocumentsDirectory();
@@ -28,7 +30,7 @@ class ImageDB {
         selectedImage = pickedFile;
         final storageRef =
             ref.child("$RoomId/").child("${selectedImage!.name}/");
-        storageRef.putFile(File(selectedImage!.path));
+        await storageRef.putFile(File(selectedImage!.path));
         //get Download url
         downloadUrl = await storageRef.getDownloadURL();
 
@@ -36,17 +38,31 @@ class ImageDB {
         print("RoomId: $RoomId");
 
         //add Message object to firestore
-        await Database.chatRoomCollection.doc(RoomId).collection("chats").add({
-          "sendBy": Auth().auth.currentUser?.displayName,
-          "text": downloadUrl.toString(),
-          "time": Timestamp.now(),
-        }).then((value) {
-          print("Image ${selectedImage!.name} have been Uploaded");
-          return null;
-        });
+        if (chatType == ChatType.group) {
+          await Database.groupCollection.doc(RoomId).collection("chats").add({
+            "sendBy": Auth().auth.currentUser?.displayName,
+            "text": downloadUrl.toString(),
+            "time": Timestamp.now(),
+          }).then((value) {
+            print("Image ${selectedImage!.name} have been Uploaded");
+            return null;
+          });
+        } else {
+          await Database.chatRoomCollection
+              .doc(RoomId)
+              .collection("chats")
+              .add({
+            "sendBy": Auth().auth.currentUser?.displayName,
+            "text": downloadUrl.toString(),
+            "time": Timestamp.now(),
+          }).then((value) {
+            print("Image ${selectedImage!.name} have been Uploaded");
+            return null;
+          });
+        }
       } else {
         //snackbar
-
+        errorSnackBar(context, "Failed to send the image");
         print("Failed to Pick the Image");
       }
     } on FirebaseException catch (e) {
@@ -70,7 +86,7 @@ class ImageDB {
             .ref("userprofile/${Auth().auth.currentUser?.displayName}")
             .child(selectedImage!.name);
 
-        storageRef.putFile(File(selectedImage!.path));
+        await storageRef.putFile(File(selectedImage!.path));
 
         downloadUrl = await storageRef.getDownloadURL();
 
@@ -84,6 +100,37 @@ class ImageDB {
     } on FirebaseException catch (e) {
       errorSnackBar(context, "Couldnot update Image");
       print("could not update user ProfileImg $e");
+    }
+  }
+
+  static void updateGroupImg(context, String groupName) async {
+    String downloadUrl = '';
+    try {
+      QuerySnapshot group = await Database.groupCollection
+          .where("groupName", isEqualTo: groupName)
+          .get();
+
+      XFile? file = await PickImage().pickImage(ImageSource.gallery);
+      if (file != null) {
+        selectedImage = file;
+
+        final storageRef = FirebaseStorage.instance
+            .ref("groups/$groupName")
+            .child(selectedImage!.name);
+
+        await storageRef.putFile(File(selectedImage!.path));
+
+        downloadUrl = await storageRef.getDownloadURL();
+
+        await Database.groupCollection
+            .doc(group.docs.first.id)
+            .update({"groupImg": downloadUrl});
+
+        successSnackBar(context, "Group Image updated");
+      }
+    } on FirebaseException catch (e) {
+      errorSnackBar(context, "Could not update Image");
+      print("could not update group Img $e");
     }
   }
 }

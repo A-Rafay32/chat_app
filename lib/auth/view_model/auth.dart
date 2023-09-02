@@ -1,9 +1,9 @@
 import 'package:chat_app/auth/view/login.dart';
+import 'package:chat_app/core/view/home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../core/model/data/database.dart';
 import '../../core/model/model.dart';
 import '../../core/utils/snackbar.dart';
 
@@ -29,6 +29,11 @@ class Auth extends ChangeNotifier {
           email: emailController.text.trim(),
           password: passController.text.trim());
       print("${emailController.text.trim()} logged in");
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HomeScreen(),
+          ));
     } on FirebaseException catch (e) {
       errorSnackBar(context, e.message);
       print(e);
@@ -63,13 +68,18 @@ class Auth extends ChangeNotifier {
             password: passController.text.trim());
 
         // add user document
-        await Database.usersCollection
-            .add(UserModel.toJson(userModel))
-            .then((value) {
-          print("user : ${UserModel.toJson(userModel)} created ");
-          user!.updateDisplayName(nameController.text.trim());
-        });
+        // await Database.usersCollection
+        //     .add(UserModel.toJson(userModel))
+        //     .then((value) {
+        //   print("user : ${UserModel.toJson(userModel)} created ");
+        //   user!.updateDisplayName(nameController.text.trim());
+        // });
 
+        // Navigator.pushReplacement(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (context) => const HomeScreen(),
+        //     ));
         //pop out of Sign Up Screen
         Navigator.pop(context);
       }

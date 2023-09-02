@@ -1,3 +1,4 @@
+import 'package:chat_app/core/model/data/images_db.dart';
 import 'package:chat_app/features/groups/group_utils/group_dialog.dart';
 import 'package:flutter/material.dart';
 
@@ -43,13 +44,8 @@ class GroupPopupMenuButton extends StatelessWidget {
           PopupMenuItem(
               child: TextButton(
                   onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AddMemberScreen(
-                            groupDocId: widget.documentId,
-                          ),
-                        ));
+                    ImageDB.updateGroupImg(
+                        context, widget.objectMap["groupName"]);
                   },
                   child: const Text(
                     "Set Group Image ",

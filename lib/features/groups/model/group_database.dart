@@ -102,7 +102,7 @@ class GroupDB extends Database {
   }
 
   static void addMemberInGroup(
-      String groupDocId, String memberEmail, String memberName) async {
+      {context, groupDocId, memberEmail, memberName}) async {
     try {
       QuerySnapshot member = await Database.usersCollection
           .where("email", isEqualTo: memberEmail)
@@ -112,7 +112,7 @@ class GroupDB extends Database {
           .where("members", arrayContains: memberName)
           .get();
 
-      if (member.docs.isNotEmpty && group.docs.isEmpty) {
+      if (member.docs.isNotEmpty) {
         // update user's group field
         await Database.usersCollection.doc(member.docs.first.id).update({
           "groups": FieldValue.arrayUnion([groupDocId])
@@ -128,10 +128,13 @@ class GroupDB extends Database {
           print("$memberName added in group's member field");
           return null;
         });
+        successSnackBar(context,
+            "$memberName added to the ${group.docs.first["groupName"]}");
       } else {
         print("Couldnot fetch member ${member.docs.first.data()} ");
       }
     } on FirebaseException catch (e) {
+      errorSnackBar(context, "Failed to add $memberName");
       print("Couldn't add member $memberEmail: $e");
     }
   }

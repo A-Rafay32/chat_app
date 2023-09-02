@@ -61,7 +61,7 @@ class _ChatScreenState extends State<ChatScreen> {
     widget.chatType == ChatType.group
         ? GroupDB.getGroupMessages(widget.documentId)
         : Database.getMessages(widget.documentId);
-    scrollDown();
+
     super.initState();
   }
 
@@ -126,7 +126,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelMedium
-                                    ?.copyWith(color: const Color.fromARGB(255, 8, 3, 3)))
+                                    ?.copyWith(
+                                        color:
+                                            const Color.fromARGB(255, 8, 3, 3)))
                           ],
                         ),
                       ),
@@ -142,67 +144,69 @@ class _ChatScreenState extends State<ChatScreen> {
                                     .collection("chats")
                                     .snapshots(),
                             builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Column(
-                                  children: [
-                                    SizedBox(
-                                      height: h * 0.3,
-                                    ),
-                                    const SizedBox(
-                                      height: 30,
-                                      width: 30,
-                                      child: CircularProgressIndicator(
-                                          color: primaryColor),
-                                    ),
-                                  ],
-                                );
-                              }
-                              if (snapshot.data != null) {
-                                return GroupedListView<QueryDocumentSnapshot,
-                                    Timestamp>(
+                              // if (snapshot.connectionState ==
+                              //     ConnectionState.waiting) {
+                              //   return Column(
+                              //     children: [
+                              //       SizedBox(
+                              //         height: h * 0.3,
+                              //       ),
+                              //       const SizedBox(
+                              //         height: 30,
+                              //         width: 30,
+                              //         child: CircularProgressIndicator(
+                              //             color: primaryColor),
+                              //       ),
+                              //     ],
+                              //   );
+                              // }
+                              // if (snapshot.data != null) {
+                              return GroupedListView<QueryDocumentSnapshot,
+                                      Timestamp>(
                                   controller: scrollController,
                                   padding: const EdgeInsets.all(8),
-                                  elements: snapshot.data!.docs,
+                                  elements: snapshot.data?.docs ?? [],
                                   groupBy: (element) => element["time"],
                                   order: GroupedListOrder.ASC,
                                   groupHeaderBuilder:
                                       (QueryDocumentSnapshot messages) =>
                                           const SizedBox(),
                                   itemBuilder: (context,
-                                          QueryDocumentSnapshot messages) =>
-                                      Container(
-                                    color: Colors.transparent,
-                                    child:
-                                        checkForImage(messages["text"]) == true
-                                            ? DisplayImageWidget(
-                                                alignment: messages["sendBy"] ==
-                                                        Auth()
-                                                            .auth
-                                                            .currentUser
-                                                            ?.displayName
-                                                    ? Alignment.centerRight
-                                                    : Alignment.centerLeft,
-                                                messages: messages,
-                                                widget: widget,
-                                              )
-                                            : DisplayTextWidget(
-                                                alignment: messages["sendBy"] ==
-                                                        Auth()
-                                                            .auth
-                                                            .currentUser
-                                                            ?.displayName
-                                                    ? Alignment.centerRight
-                                                    : Alignment.centerLeft,
-                                                messages: messages,
-                                                w: w,
-                                                widget: widget,
-                                              ),
-                                  ),
-                                );
-                              } else {
-                                return Container();
-                              }
+                                      QueryDocumentSnapshot messages) {
+                                    //scrolling
+                                    Future.microtask(scrollDown);
+                                    return Container(
+                                      color: Colors.transparent,
+                                      child: checkForImage(messages["text"]) ==
+                                              true
+                                          ? DisplayImageWidget(
+                                              alignment: messages["sendBy"] ==
+                                                      Auth()
+                                                          .auth
+                                                          .currentUser
+                                                          ?.displayName
+                                                  ? Alignment.centerRight
+                                                  : Alignment.centerLeft,
+                                              messages: messages,
+                                              widget: widget,
+                                            )
+                                          : DisplayTextWidget(
+                                              alignment: messages["sendBy"] ==
+                                                      Auth()
+                                                          .auth
+                                                          .currentUser
+                                                          ?.displayName
+                                                  ? Alignment.centerRight
+                                                  : Alignment.centerLeft,
+                                              messages: messages,
+                                              w: w,
+                                              widget: widget,
+                                            ),
+                                    );
+                                  });
+                              // } else {
+                              //   return Container();
+                              // }
                             }),
                       ),
                       SizedBox(

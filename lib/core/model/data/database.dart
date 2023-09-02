@@ -8,6 +8,8 @@ class Database {
   static FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   static CollectionReference usersCollection =
       FirebaseFirestore.instance.collection("users");
+  static CollectionReference groupCollection =
+      FirebaseFirestore.instance.collection("groups");
   static CollectionReference chatRoomCollection =
       FirebaseFirestore.instance.collection("chatroom");
 

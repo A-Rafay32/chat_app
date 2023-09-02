@@ -72,8 +72,11 @@ class AddMemberScreen extends StatelessWidget {
                               return GestureDetector(
                                 onTap: () {
                                   //update group field of user
-                                  GroupDB.addMemberInGroup(groupDocId,
-                                      snapshot.data!.docs[index]["email"] ,snapshot.data!.docs[index]["name"]);
+                                  GroupDB.addMemberInGroup(
+                                      context :context,
+                                      groupDocId: groupDocId,
+                                      memberEmail: snapshot.data!.docs[index]["email"],
+                                      memberName: snapshot.data!.docs[index]["name"]);
                                   Navigator.pop(context);
                                   //snackbar
                                 },

@@ -33,7 +33,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  @override  
+  @override
   void initState() {
     Helper.isSignedIn();
 
@@ -53,7 +53,7 @@ class _MyAppState extends State<MyApp> {
       ],
       child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: ThemeData(
+          theme: ThemeData( 
               drawerTheme:
                   const DrawerThemeData(scrimColor: Colors.transparent)),
           title: 'Chat App',

@@ -38,10 +38,10 @@ class ChatTextField extends StatelessWidget {
                 suffixIcon: IconButton(
                     onPressed: () {
                       widget.chatType == ChatType.group
-                          ? ImageDB.onSendImages(
-                              ImageDB().groupRef, widget.documentId, context)
+                          ? ImageDB.onSendImages(ImageDB().groupRef,
+                              widget.documentId, context, ChatType.group)
                           : ImageDB.onSendImages(ImageDB().chatRoomRef,
-                              widget.documentId, context);
+                              widget.documentId, context, ChatType.one2one);
                     },
                     icon: const Icon(Icons.image)),
                 suffixIconColor: Colors.white,
