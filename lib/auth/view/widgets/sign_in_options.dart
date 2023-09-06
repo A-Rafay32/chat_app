@@ -5,14 +5,17 @@ import '../../../res/colors.dart';
 class SignInOptions extends StatelessWidget {
   const SignInOptions({
     super.key,
-    required this.size,
+    required this.h,
+    required this.w,
     required this.title,
     required this.icon,
     required this.topLeft,
     required this.topRight,
   });
 
-  final Size size;
+  final double h;
+  final double w;
+
   final String title;
   final IconData icon;
   final Radius topLeft;
@@ -21,7 +24,7 @@ class SignInOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: size.width * 0.43,
+      width: w * 0.43,
       // margin: const EdgeInsets.all(12),
       decoration: BoxDecoration(
           color: primaryColor.withOpacity(0.23),
@@ -33,7 +36,7 @@ class SignInOptions extends StatelessWidget {
           )),
       child: Padding(
         padding: EdgeInsets.symmetric(
-          vertical: size.height * 0.015,
+          vertical: h * 0.015,
           horizontal: 20,
         ),
         child: Row(

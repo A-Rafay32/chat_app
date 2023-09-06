@@ -30,10 +30,8 @@ class GroupDB extends Database {
   }
 
   static void onSendMessage(String groupRoomId) async {
-    QuerySnapshot userSender = await Database.getUserQuerySnapshot(
-        Auth().auth.currentUser?.displayName ?? "");
-    // QuerySnapshot userReceiver =
-    //     await Database.getUserQuerySnapshot(receiverName);
+    
+    
 
     if (Database.msgController.text.isNotEmpty) {
       Map<String, dynamic> msgMap = {

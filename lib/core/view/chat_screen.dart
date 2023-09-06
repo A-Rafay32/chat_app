@@ -52,7 +52,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void scrollDown() {
     SchedulerBinding.instance.addPostFrameCallback((_) {
       scrollController.animateTo(scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 10), curve: Curves.easeOut);
+          duration: const Duration(milliseconds: 400), curve: Curves.ease);
     });
   }
 
@@ -95,7 +95,12 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                   ]),
             ),
-            Positioned(
+            AnimatedPositioned(
+                duration: const Duration(milliseconds: 150),
+                curve: Curves.ease,
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 0,
+                right: 0,
                 top: 70,
                 child: Container(
                   height: h * 0.9,
@@ -144,23 +149,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                     .collection("chats")
                                     .snapshots(),
                             builder: (context, snapshot) {
-                              // if (snapshot.connectionState ==
-                              //     ConnectionState.waiting) {
-                              //   return Column(
-                              //     children: [
-                              //       SizedBox(
-                              //         height: h * 0.3,
-                              //       ),
-                              //       const SizedBox(
-                              //         height: 30,
-                              //         width: 30,
-                              //         child: CircularProgressIndicator(
-                              //             color: primaryColor),
-                              //       ),
-                              //     ],
-                              //   );
-                              // }
-                              // if (snapshot.data != null) {
+                              Future.microtask(scrollDown);
                               return GroupedListView<QueryDocumentSnapshot,
                                       Timestamp>(
                                   controller: scrollController,
@@ -174,7 +163,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   itemBuilder: (context,
                                       QueryDocumentSnapshot messages) {
                                     //scrolling
-                                    Future.microtask(scrollDown);
+
                                     return Container(
                                       color: Colors.transparent,
                                       child: checkForImage(messages["text"]) ==
@@ -215,7 +204,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     ],
                   ),
                 )),
-            Positioned(
+            AnimatedPositioned(
+                duration: const Duration(milliseconds: 70),
+                curve: Curves.ease,
                 bottom: MediaQuery.of(context).viewInsets.bottom,
                 left: 0,
                 right: 0,

@@ -1,3 +1,4 @@
+import 'package:chat_app/auth/view/login.dart';
 import 'package:chat_app/auth/view_model/auth.dart';
 import 'package:chat_app/core/model/data/database.dart';
 import 'package:chat_app/core/model/data/images_db.dart';
@@ -99,8 +100,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           ),
           Expanded(child: Container()),
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 50,
+            padding: EdgeInsets.symmetric(
+              horizontal: w * 0.2,
             ),
             child: GestureDetector(
                 onTap: () => showDialog(
@@ -129,8 +130,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   backgroundColor:
                                       MaterialStatePropertyAll(primaryColor)),
                               onPressed: () {
-                                Database.delCurrentUserAccount(context);
                                 Navigator.pop(context);
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const LoginScreen(),
+                                    ));
+                                Auth().signOut(context);
+                                Database.delCurrentUserAccount(context);
                               },
                               child: const Text(
                                 "Yes",
@@ -163,6 +170,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       "Delete Account",
                       style:
                           TextStyle(color: Colors.red.shade400, fontSize: 19),
+                    ),
+                    const SizedBox(
+                      height: 30,
                     )
                   ],
                 )),
@@ -212,9 +222,13 @@ class UserProfileImageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: primaryColor,
       padding: const EdgeInsets.all(10),
       height: h * 0.35,
+      decoration: const BoxDecoration(
+          color: primaryColor,
+          borderRadius: BorderRadius.only(
+              bottomRight: Radius.circular(60),
+              bottomLeft: Radius.circular(60))),
       width: w,
       child: Column(
         children: [

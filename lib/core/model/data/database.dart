@@ -45,10 +45,6 @@ class Database {
   }
 
   static void onSendMessage(String chatRoomId, String receiverName) async {
-    QuerySnapshot userSender =
-        await getUserQuerySnapshot(Auth().auth.currentUser?.displayName ?? "");
-    QuerySnapshot userReceiver = await getUserQuerySnapshot(receiverName);
-
     if (msgController.text.isNotEmpty) {
       Map<String, dynamic> msgMap = {
         "sendBy": Auth().auth.currentUser?.displayName,
@@ -57,6 +53,9 @@ class Database {
       };
 
       msgController.clear();
+      
+      
+      QuerySnapshot userReceiver = await getUserQuerySnapshot(receiverName);
       // add message to db
       await firebaseFirestore
           .collection("chatroom")
@@ -65,13 +64,7 @@ class Database {
           .add(msgMap);
       print("$msgMap sent");
 
-      // update recent message in both users
-      if (userSender.docs.isNotEmpty) {
-        await firebaseFirestore
-            .collection("users")
-            .doc(userSender.docs.first.id)
-            .update({"recentMsg": msgMap});
-      }
+      
       if (userReceiver.docs.isNotEmpty) {
         await firebaseFirestore
             .collection("users")

@@ -37,12 +37,27 @@ class ForgetPasswordScreen extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Container(
-                  height: h * 0.25,
-                  width: w * 0.5,
+                  
+                  width: w * 0.6,
                   alignment: Alignment.centerLeft,
                   padding: const EdgeInsets.symmetric(horizontal: 18),
-                  child: Text("Forgot Password?",
-                      maxLines: 2,
+                  child: Text("Forgot",
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black)),
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  
+                  width: w * 0.6,
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: Text("Password?",
                       style: Theme.of(context)
                           .textTheme
                           .headlineMedium

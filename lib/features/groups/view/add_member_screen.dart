@@ -79,6 +79,7 @@ class AddMemberScreen extends StatelessWidget {
                                       memberName: snapshot.data!.docs[index]["name"]);
                                   Navigator.pop(context);
                                   //snackbar
+                                  
                                 },
                                 child: UserTile(
                                   status: snapshot.data!.docs[index]["status"],
