@@ -1,6 +1,8 @@
 import 'package:chat_app/core/model/model.dart';
+import 'package:chat_app/core/utils/snackbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../auth/view_model/auth.dart';
 
@@ -177,6 +179,24 @@ class Database {
       Auth.userMap = user.docs.first.data();
     } on FirebaseException catch (e) {
       print("Could not fetch current user $e");
+    }
+  }
+
+  static void delCurrentUserAccount(context) async {
+    try {
+      // remove account
+      await Provider.of<Auth>(context, listen: false)
+          .auth
+          .currentUser
+          ?.delete();
+      // remove user document
+      QuerySnapshot user = await getUserQuerySnapshot(
+          Auth().auth.currentUser?.displayName ?? "");
+      await usersCollection.doc(user.docs.first.id).delete();
+      successSnackBar(context, "Your Account Has Been Removed");
+    } on FirebaseException catch (e) {
+      errorSnackBar(context, "Could not perform action, Try Again");
+      print("could not delete user account : ${e.message}");
     }
   }
 }

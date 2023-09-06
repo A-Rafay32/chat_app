@@ -9,15 +9,9 @@ void successSnackBar(context, text) {
         padding: const EdgeInsets.symmetric(
           horizontal: 15,
         ),
-        child: Row(
-          children: [
-            Text(
-              text,
-              style: const TextStyle(color: Colors.white, fontSize: 18),
-            ),
-            Expanded(child: Container()),
-            const Icon(Icons.check, color: Colors.white)
-          ],
+        child: Text(
+          text,
+          style: const TextStyle(color: Colors.white, fontSize: 17),
         ),
       )));
 }
@@ -30,15 +24,9 @@ void errorSnackBar(context, text) {
         padding: const EdgeInsets.symmetric(
           horizontal: 15,
         ),
-        child: Row(
-          children: [
-            Text(
-              text,
-              style: const TextStyle(color: Colors.white, fontSize: 18),
-            ),
-            Expanded(child: Container()),
-            const Icon(Icons.error_sharp, color: Colors.white)
-          ],
+        child: Text(
+          text,
+          style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
       )));
 }

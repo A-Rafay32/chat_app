@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../core/model/data/database.dart';
 import '../../core/model/model.dart';
 import '../../core/utils/snackbar.dart';
 
@@ -34,12 +35,10 @@ class Auth extends ChangeNotifier {
           MaterialPageRoute(
             builder: (context) => const HomeScreen(),
           ));
-    } on FirebaseException catch (e) {
+    } on FirebaseAuthException catch (e) {
       errorSnackBar(context, e.message);
       print(e);
     }
-
-    // notifyListeners();
   }
 
   Future signUp(context) async {
@@ -68,27 +67,38 @@ class Auth extends ChangeNotifier {
             password: passController.text.trim());
 
         // add user document
-        // await Database.usersCollection
-        //     .add(UserModel.toJson(userModel))
-        //     .then((value) {
-        //   print("user : ${UserModel.toJson(userModel)} created ");
-        //   user!.updateDisplayName(nameController.text.trim());
-        // });
+        await Database.usersCollection
+            .add(UserModel.toJson(userModel))
+            .then((value) {
+          print("user : ${UserModel.toJson(userModel)} created ");
+          user!.updateDisplayName(nameController.text.trim());
+        });
 
         // Navigator.pushReplacement(
         //     context,
         //     MaterialPageRoute(
         //       builder: (context) => const HomeScreen(),
         //     ));
+
         //pop out of Sign Up Screen
         Navigator.pop(context);
       }
-    } on FirebaseException catch (e) {
+    } on FirebaseAuthException catch (e) {
       errorSnackBar(context, e.message);
-      print("FirebaseException: ${e.code}");
+      print("Error Login In, Make");
       print("FirebaseException: ${e.message}");
     }
     // notifyListeners();
+  }
+
+  Future forgotPassword(String email, context) async {
+    try {
+      await auth.sendPasswordResetEmail(email: email);
+      successSnackBar(context, "Password reset email sent");
+    } on FirebaseAuthException catch (e) {
+      errorSnackBar(context, "Could not recover password");
+      print("Could not recover password${e.message}");
+    }
   }
 
   Future signOut(context) async {
@@ -100,10 +110,9 @@ class Auth extends ChangeNotifier {
           MaterialPageRoute(
             builder: (context) => const LoginScreen(),
           ));
-    } on FirebaseException catch (e) {
+    } on FirebaseAuthException catch (e) {
       errorSnackBar(context, e.message);
       print(e);
-    }
-    // notifyListeners();
+    } 
   }
 }

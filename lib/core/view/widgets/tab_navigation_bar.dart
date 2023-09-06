@@ -1,10 +1,9 @@
-import 'package:chat_app/features/groups/view/group_screen.dart';
 import 'package:flutter/material.dart';
 
+import '../../../features/groups/view/group_screen.dart';
 import '../home_screen.dart';
-import '../user_profile_ screen.dart';
 
-class TabNavigationBar extends StatelessWidget {
+class TabNavigationBar extends StatefulWidget {
   const TabNavigationBar({
     super.key,
     required this.fontSize,
@@ -15,68 +14,49 @@ class TabNavigationBar extends StatelessWidget {
   final double width;
 
   @override
+  State<TabNavigationBar> createState() => _TabNavigationBarState();
+}
+
+class _TabNavigationBarState extends State<TabNavigationBar> {
+  List<String> buttonText = ["Messages", "Online", "Groups", "More"];
+
+  int currentIndex = 0;
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 50,
-      child: ListView(
+      child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.only(left: 10),
-        children: [
-          TextButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const HomeScreen(),
-                    ));
-              },
-              child: Text(
-                "Messages",
-                style: TextStyle(color: Colors.white, fontSize: fontSize),
-              )),
-          SizedBox(
-            width: width,
-          ),
-          TextButton(
-              onPressed: () {},
-              child: Text(
-                "Online",
-                style: TextStyle(color: Colors.grey, fontSize: fontSize),
-              )),
-          SizedBox(
-            width: width,
-          ),
-          TextButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const GroupScreen(),
-                    ));
-              },
-              child: Text(
-                "Groups",
-                style: TextStyle(color: Colors.grey, fontSize: fontSize),
-              )),
-          SizedBox(
-            width: width,
-          ),
-          TextButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => UserProfileScreen(image: ""),
-                    ));
-              },
-              child: Text(
-                "More",
-                style: TextStyle(color: Colors.grey, fontSize: fontSize),
-              )),
-          SizedBox(
-            width: width,
-          ),
-        ],
+        itemCount: buttonText.length,
+        itemBuilder: (context, index) => TextButton(
+            onPressed: () {
+              
+              buttonText[index] == "Messages"
+                  ? Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomeScreen(),
+                      ))
+                  : buttonText[index] == "Groups"
+                      ? Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const GroupScreen(),
+                          ))
+                      : null;
+              setState(() {
+                currentIndex = index;
+              });
+              print("currentIndex : $currentIndex");
+            },
+            child: Text(
+              buttonText[index],
+              style: TextStyle(
+                  color: currentIndex == index ? Colors.white : Colors.grey,
+                  fontSize: widget.fontSize),
+            )),
       ),
     );
   }

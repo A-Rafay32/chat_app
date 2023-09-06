@@ -41,7 +41,7 @@ class _GroupScreenState extends State<GroupScreen> {
           Column(
             children: [
               CustomAppBar(),
-              const TabNavigationBar(fontSize: fontSize, width: width)
+              TabNavigationBar(fontSize: fontSize, width: width)
             ],
           ),
           Positioned(

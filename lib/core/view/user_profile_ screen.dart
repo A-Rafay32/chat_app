@@ -75,7 +75,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             child: TextField(
               controller: nameController,
               cursorColor: Colors.black,
-              decoration: TextFieldDecoration(hintText: "Full Name"),
+              decoration: TextFieldDecoration(
+                  hintText: "Full Name", label: "Full Name"),
             ),
           ),
           Padding(
@@ -83,7 +84,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             child: TextField(
               controller: emailController,
               cursorColor: Colors.black,
-              decoration: TextFieldDecoration(hintText: "Email"),
+              decoration:
+                  TextFieldDecoration(hintText: "Email", label: "Email"),
             ),
           ),
           Padding(
@@ -91,16 +93,92 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             child: TextField(
               controller: statusController,
               cursorColor: Colors.black,
-              decoration: TextFieldDecoration(hintText: "Status"),
+              decoration:
+                  TextFieldDecoration(hintText: "Status", label: "Status"),
             ),
+          ),
+          Expanded(child: Container()),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 50,
+            ),
+            child: GestureDetector(
+                onTap: () => showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        backgroundColor: Colors.white,
+                        actions: [
+                          TextButton(
+                              style: const ButtonStyle(
+                                  padding: MaterialStatePropertyAll(
+                                      EdgeInsets.all(10)),
+                                  backgroundColor:
+                                      MaterialStatePropertyAll(primaryColor)),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text(
+                                "Cancel",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 18),
+                              )),
+                          TextButton(
+                              style: const ButtonStyle(
+                                  padding: MaterialStatePropertyAll(
+                                      EdgeInsets.all(10)),
+                                  backgroundColor:
+                                      MaterialStatePropertyAll(primaryColor)),
+                              onPressed: () {
+                                Database.delCurrentUserAccount(context);
+                                Navigator.pop(context);
+                              },
+                              child: const Text(
+                                "Yes",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 18),
+                              ))
+                        ],
+                        actionsAlignment: MainAxisAlignment.spaceBetween,
+                        contentPadding: const EdgeInsets.all(20),
+                        elevation: 2,
+                        content: const Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text("Are you Sure?",
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 21)),
+                            ]),
+                      ),
+                    ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.delete_sharp,
+                      color: Colors.red.shade400,
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      "Delete Account",
+                      style:
+                          TextStyle(color: Colors.red.shade400, fontSize: 19),
+                    )
+                  ],
+                )),
+          ),
+          const SizedBox(
+            height: 30,
           ),
         ],
       ),
     );
   }
 
-  InputDecoration TextFieldDecoration({String? hintText}) {
+  InputDecoration TextFieldDecoration({String? hintText, String? label}) {
     return InputDecoration(
+      labelText: label.toString(),
+      labelStyle: const TextStyle(color: Colors.grey, fontSize: 17),
       contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
       hintText: hintText,
       hintStyle: const TextStyle(color: Colors.grey, fontSize: 17),

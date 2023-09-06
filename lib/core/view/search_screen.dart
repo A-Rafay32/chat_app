@@ -1,6 +1,9 @@
+import 'package:chat_app/core/model/model.dart';
+import 'package:chat_app/core/view/chat_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../../auth/view_model/auth.dart';
 import '../../features/groups/view/user_tile.dart';
 import '../../res/colors.dart';
 import '../model/data/database.dart';
@@ -16,26 +19,7 @@ class _SearchScreenState extends State<SearchScreen> {
   TextEditingController searchController = TextEditingController();
 
   Stream<QuerySnapshot>? searchStream;
-  QuerySnapshot? searchResult;
   String searchedValue = "";
-  List<Map<String, dynamic>> searchMap = [];
-
-  void init() async {
-    if (searchedValue == "") {
-      print(Database.usersCollection.path);
-      searchResult = await Database.usersCollection.get();
-    } else {
-      searchResult = await Database.usersCollection
-          .where("name", isEqualTo: searchedValue)
-          .limit(1)
-          .get();
-    }
-    for (int i = 0; i < searchResult!.docs.length; ++i) {
-      searchMap.add(searchResult!.docs[i].data() as Map<String, dynamic>);
-    }
-
-    print("searchMap : $searchMap");
-  }
 
   void initSearch() {
     if (searchedValue == "") {
@@ -49,7 +33,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   void initState() {
-    init();
+    initSearch();
     super.initState();
   }
 
@@ -92,23 +76,15 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
                 TextField(
                   style: const TextStyle(color: Colors.white),
-                  onSubmitted: (value) {
-                    // searchedValue = value;
-                    // print(searchedValue);
-                    // searchStream = Database.usersCollection
-                    //     .where("name", isEqualTo: searchedValue)
-                    //     .snapshots();
-                  },
+                  onSubmitted: (value) {},
                   onChanged: (value) {
-                    searchedValue = value;
-                    print(searchedValue);
-                    init();
-                    // searchStream = Database.usersCollection
-                    //     .where("name", isEqualTo: searchedValue)
-                    //     .snapshots();
-
-                    // searchMap =
-                    //     searchResult!.docs.first.data() as Map<String, dynamic>;
+                    setState(() {
+                      searchedValue = value;
+                      // Update the searchStream with the new query
+                      searchStream = Database.usersCollection
+                          .where("name", isEqualTo: searchedValue)
+                          .snapshots();
+                    });
                   },
                   cursorColor: Colors.white,
                   controller: searchController,
@@ -130,25 +106,8 @@ class _SearchScreenState extends State<SearchScreen> {
                       topRight: Radius.circular(40)),
                   color: Color(0xFFEFFFFC),
                 ),
-                // child: Text(searchMap[0]["name"])
-                // ListView.builder(
-                //     padding: const EdgeInsets.only(left: 25),
-                //     itemCount: searchMap.length,
-                //     itemBuilder: (context, index) {
-                //       print(searchMap.length);
-                //       print(searchMap[index]["status"]);
-                //       print(searchMap[index]["name"]);
-                //       print(searchMap[index]["profileImg"]);
-
-                // UserTile(
-                //   status: searchMap[index]["status"],
-                //   name: searchMap[index]["name"],
-                //   filename: searchMap[index]["profileImg"],
-                // );
-                // }),
-
                 child: StreamBuilder(
-                  stream: Database.usersCollection.snapshots(),
+                  stream: searchStream,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Column(
@@ -165,28 +124,11 @@ class _SearchScreenState extends State<SearchScreen> {
                         ],
                       );
                     }
-                    if (snapshot.hasData) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(40),
-                              topRight: Radius.circular(40)),
-                          color: Color(0xFFEFFFFC),
-                        ),
-                        child: ListView.builder(
-                            padding: const EdgeInsets.only(left: 25),
-                            itemCount: snapshot.data!.docs.length,
-                            itemBuilder: (context, index) {
-                              return UserTile(
-                                status: snapshot.data?.docs[index]["status"],
-                                name: snapshot.data?.docs[index]["name"],
-                                filename: snapshot.data?.docs[index]
-                                    ["profileImg"],
-                              );
-                            }),
-                      );
-                    } else {
+                    if (snapshot.hasError) {
+                      // Handle errors
+                      return Text('Error: ${snapshot.error.toString()}');
+                    }
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                       return Column(
                         children: [
                           const SizedBox(
@@ -201,6 +143,53 @@ class _SearchScreenState extends State<SearchScreen> {
                         ],
                       );
                     }
+
+                    return Container(
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(40),
+                            topRight: Radius.circular(40)),
+                        color: Color(0xFFEFFFFC),
+                      ),
+                      child: ListView.builder(
+                          padding: const EdgeInsets.only(left: 25),
+                          itemCount: snapshot.data!.docs.length,
+                          itemBuilder: (context, index) {
+                            return GestureDetector(
+                              onTap: () async {
+                                //get other user
+                                Map<String, dynamic> userMap =
+                                    await Database.getUser(
+                                        snapshot.data!.docs[index]["name"]);
+                                print(
+                                    Auth().auth.currentUser?.displayName ?? "");
+
+                                // generate roomId with them
+                                String roomId = Database.chatRoomId(
+                                    Auth().auth.currentUser?.displayName ?? "",
+                                    snapshot.data!.docs[index]["name"]);
+
+                                //navigate
+                                if (!context.mounted) return;
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatScreen(
+                                          documentId: roomId,
+                                          objectMap: userMap,
+                                          chatType: ChatType.one2one),
+                                    ));
+                              },
+                              child: UserTile(
+                                status: snapshot.data?.docs[index]["status"],
+                                name: snapshot.data?.docs[index]["name"],
+                                filename: snapshot.data?.docs[index]
+                                    ["profileImg"],
+                              ),
+                            );
+                          }),
+                    );
                   },
                 ),
               ))

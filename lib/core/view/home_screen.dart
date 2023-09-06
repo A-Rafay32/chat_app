@@ -54,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
             width: w,
             child: Stack(
               children: [
-                const Column(
+                Column(
                   children: [
                     TabNavigationBar(fontSize: fontSize, width: width)
                   ],
@@ -99,7 +99,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   itemBuilder: (context, index) {
                                     Timestamp timestamp = snapshot
                                         .data?.docs[index]["recentMsg"]["time"];
-
+                                    if (snapshot.data?.docs[index]["name"] ==
+                                        Auth().auth.currentUser?.displayName) {
+                                      return Container();
+                                    }
                                     return ConversationRow(
                                       time: formatDate(timestamp.toDate()),
                                       name: snapshot.data?.docs[index]["name"],
@@ -179,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: () {},
         ),
       ),
-      drawer: CustomDrawer(),
+      drawer: const CustomDrawer(),
     );
   }
 }
