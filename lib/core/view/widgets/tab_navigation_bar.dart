@@ -20,8 +20,6 @@ class TabNavigationBar extends StatefulWidget {
 class _TabNavigationBarState extends State<TabNavigationBar> {
   List<String> buttonText = ["Messages", "Online", "Groups", "More"];
 
-  int currentIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -32,7 +30,6 @@ class _TabNavigationBarState extends State<TabNavigationBar> {
         itemCount: buttonText.length,
         itemBuilder: (context, index) => TextButton(
             onPressed: () {
-              
               buttonText[index] == "Messages"
                   ? Navigator.pushReplacement(
                       context,
@@ -47,17 +44,22 @@ class _TabNavigationBarState extends State<TabNavigationBar> {
                           ))
                       : null;
               setState(() {
-                currentIndex = index;
+                TabBarIndex.tabBarIndex = index;
               });
-              print("currentIndex : $currentIndex");
             },
             child: Text(
               buttonText[index],
               style: TextStyle(
-                  color: currentIndex == index ? Colors.white : Colors.grey,
+                  color: TabBarIndex.tabBarIndex == index
+                      ? Colors.white
+                      : Colors.grey,
                   fontSize: widget.fontSize),
             )),
       ),
     );
   }
+}
+
+class TabBarIndex {
+  static int tabBarIndex = 0;
 }
