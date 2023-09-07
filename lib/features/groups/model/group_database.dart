@@ -30,9 +30,6 @@ class GroupDB extends Database {
   }
 
   static void onSendMessage(String groupRoomId) async {
-    
-    
-
     if (Database.msgController.text.isNotEmpty) {
       Map<String, dynamic> msgMap = {
         "sendBy": Auth().auth.currentUser?.displayName,
@@ -99,20 +96,23 @@ class GroupDB extends Database {
     }
   }
 
-  static void addMemberInGroup(
+  static Future<List> addMemberInGroup(
       {context, groupDocId, memberEmail, memberName}) async {
+    List groupMembers = [];
     try {
-      QuerySnapshot member = await Database.usersCollection
+      QuerySnapshot memberSnapshot = await Database.usersCollection
           .where("email", isEqualTo: memberEmail)
           .get();
 
-      QuerySnapshot group = await groupCollection
+      QuerySnapshot groupSnapshot = await groupCollection
           .where("members", arrayContains: memberName)
           .get();
 
-      if (member.docs.isNotEmpty) {
+      if (memberSnapshot.docs.isNotEmpty) {
         // update user's group field
-        await Database.usersCollection.doc(member.docs.first.id).update({
+        await Database.usersCollection
+            .doc(memberSnapshot.docs.first.id)
+            .update({
           "groups": FieldValue.arrayUnion([groupDocId])
         }).then((value) {
           print("group: $groupDocId added in user's groups field");
@@ -126,21 +126,42 @@ class GroupDB extends Database {
           print("$memberName added in group's member field");
           return null;
         });
+
+        groupCollection.doc(groupDocId).get().then(
+          (DocumentSnapshot snapshot) {
+            groupMembers = snapshot.get("members");
+          },
+        );
+
         successSnackBar(context,
-            "$memberName added to the ${group.docs.first["groupName"]}");
+            "$memberName added to the ${groupSnapshot.docs.first["groupName"]}");
       } else {
-        print("Couldnot fetch member ${member.docs.first.data()} ");
+        print("Couldnot fetch member ${memberSnapshot.docs.first.data()} ");
       }
     } on FirebaseException catch (e) {
       errorSnackBar(context, "Failed to add $memberName");
       print("Couldn't add member $memberEmail: $e");
     }
+    return groupMembers;
+  }
+
+  static Future<List> getGroupMembers(String groupDocId) async {
+    List groupMembers = [];
+    await groupCollection
+        .doc(groupDocId)
+        .get()
+        .then((DocumentSnapshot snapshot) {
+      groupMembers = snapshot.get("members");
+    });
+    return groupMembers;
   }
 
   static Future<String?> getUserImage(String userName) async {
+    String? profileImg;
     QuerySnapshot user =
         await Database.usersCollection.where("name", isEqualTo: userName).get();
-    Map<String, dynamic> data = user.docs.first.data() as Map<String, dynamic>;
-    return data["profileImg"];
+    profileImg = user.docs.first.get("profileImg");
+
+    return profileImg;
   }
 }

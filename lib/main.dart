@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import "package:flutter/foundation.dart";
 import 'auth/view_model/auth.dart';
+
 import 'utils/constants.dart';
 
 void main() async {
@@ -49,11 +50,11 @@ class _MyAppState extends State<MyApp> {
         ),
         ChangeNotifierProvider(
           create: (context) => DBViewModel(),
-        )
+        ),
       ],
       child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: ThemeData( 
+          theme: ThemeData(
               drawerTheme:
                   const DrawerThemeData(scrimColor: Colors.transparent)),
           title: 'Chat App',

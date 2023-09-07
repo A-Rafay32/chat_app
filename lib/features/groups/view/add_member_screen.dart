@@ -1,4 +1,5 @@
 import 'package:chat_app/features/groups/view/user_tile.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -73,13 +74,14 @@ class AddMemberScreen extends StatelessWidget {
                                 onTap: () {
                                   //update group field of user
                                   GroupDB.addMemberInGroup(
-                                      context :context,
+                                      context: context,
                                       groupDocId: groupDocId,
-                                      memberEmail: snapshot.data!.docs[index]["email"],
-                                      memberName: snapshot.data!.docs[index]["name"]);
+                                      memberEmail: snapshot.data!.docs[index]
+                                          ["email"],
+                                      memberName: snapshot.data!.docs[index]
+                                          ["name"]);
                                   Navigator.pop(context);
                                   //snackbar
-                                  
                                 },
                                 child: UserTile(
                                   status: snapshot.data!.docs[index]["status"],

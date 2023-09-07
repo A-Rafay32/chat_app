@@ -1,6 +1,7 @@
 import 'package:chat_app/core/view/widgets/chat_text_field.dart';
 import 'package:chat_app/core/view/widgets/display_image_widget.dart';
 import 'package:chat_app/core/view/widgets/display_text_widget.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -32,6 +33,17 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  List<String> userProfileImages = [];
+
+  // void getUserProfileImages() async {
+  //   List groupMembers = widget.objectMap["members"];
+  //   for (int i = 0; i < groupMembers.length; ++i) {
+  //     var img = await GroupDB.getUserImage(widget.objectMap["members"][i]);
+  //     userProfileImages.add(img.toString());
+  //   }
+  //   print("userProfileImages : $userProfileImages");
+  // }
+
   String formatList(List<dynamic> list) {
     String str = "${list.join(" , ")}\t\t";
     return str;
@@ -61,7 +73,7 @@ class _ChatScreenState extends State<ChatScreen> {
     widget.chatType == ChatType.group
         ? GroupDB.getGroupMessages(widget.documentId)
         : Database.getMessages(widget.documentId);
-
+    // getUserProfileImages();
     super.initState();
   }
 
@@ -169,6 +181,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                       child: checkForImage(messages["text"]) ==
                                               true
                                           ? DisplayImageWidget(
+                                              chatType: widget.chatType,
                                               alignment: messages["sendBy"] ==
                                                       Auth()
                                                           .auth
@@ -180,6 +193,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                               widget: widget,
                                             )
                                           : DisplayTextWidget(
+                                              chatType: widget.chatType,
                                               alignment: messages["sendBy"] ==
                                                       Auth()
                                                           .auth

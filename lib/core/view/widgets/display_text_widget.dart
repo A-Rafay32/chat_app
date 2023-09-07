@@ -1,4 +1,5 @@
 import 'package:chat_app/core/view/widgets/user_avatar.dart';
+import 'package:chat_app/features/groups/model/group_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -7,33 +8,55 @@ import '../../../res/colors.dart';
 import '../../model/model.dart';
 import '../chat_screen.dart';
 
-class DisplayTextWidget extends StatelessWidget {
+class DisplayTextWidget extends StatefulWidget {
   const DisplayTextWidget({
     super.key,
     required this.w,
     required this.widget,
     required this.messages,
+    required this.chatType,
     required this.alignment,
   });
 
   final double w;
   final ChatScreen widget;
+  final ChatType chatType;
   final QueryDocumentSnapshot messages;
   final Alignment alignment;
 
   @override
+  State<DisplayTextWidget> createState() => _DisplayTextWidgetState();
+}
+
+class _DisplayTextWidgetState extends State<DisplayTextWidget> {
+  String? userImg;
+
+  void getProfileImage() async {
+    
+    userImg = await GroupDB.getUserImage(widget.messages["sendBy"]);
+    // return await GroupDB.getUserImage(widget.messages["sendBy"]);
+    print("userImg : $userImg");
+  }
+
+  @override
+  void initState() {
+    getProfileImage();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      alignment: alignment,
+      alignment: widget.alignment,
       margin: const EdgeInsets.symmetric(horizontal: 5),
       color: Colors.transparent,
-      width: w,
+      width: widget.w,
       child: Row(
         mainAxisAlignment:
-            messages["sendBy"] == Auth().auth.currentUser?.displayName
+            widget.messages["sendBy"] == Auth().auth.currentUser?.displayName
                 ? MainAxisAlignment.end
                 : MainAxisAlignment.start,
-        children: alignment == Alignment.centerLeft
+        children: widget.alignment == Alignment.centerLeft
             ? [
                 const SizedBox(
                   width: 5,
@@ -41,17 +64,20 @@ class DisplayTextWidget extends StatelessWidget {
                 UserAvatar(
                     radius: 14,
                     filename: widget.chatType == ChatType.group
-                        ? ""
-                        : widget.objectMap["profileImg"]),
+                        ? userImg.toString()
+                        : widget.messages["sendBy"] ==
+                                Auth().auth.currentUser?.displayName
+                            ? Auth().auth.currentUser?.photoURL
+                            : widget.widget.objectMap["profileImg"]),
                 const SizedBox(
                   width: 5,
                 ),
                 Container(
                     margin: const EdgeInsets.all(12),
                     padding: const EdgeInsets.all(12),
-                    constraints: BoxConstraints(maxWidth: w * 0.7),
+                    constraints: BoxConstraints(maxWidth: widget.w * 0.7),
                     decoration: BoxDecoration(
-                        color: messages["sendBy"] ==
+                        color: widget.messages["sendBy"] ==
                                 Auth().auth.currentUser?.displayName
                             ? primaryColor
                             : Colors.white,
@@ -62,9 +88,9 @@ class DisplayTextWidget extends StatelessWidget {
                         )),
                     // elevation: 8.0,
                     child: Text(
-                      messages["text"],
+                      widget.messages["text"],
                       style: TextStyle(
-                        color: messages["sendBy"] ==
+                        color: widget.messages["sendBy"] ==
                                 Auth().auth.currentUser?.displayName
                             ? Colors.white
                             : primaryColor,
@@ -78,9 +104,9 @@ class DisplayTextWidget extends StatelessWidget {
                 Container(
                     margin: const EdgeInsets.all(12),
                     padding: const EdgeInsets.all(12),
-                    constraints: BoxConstraints(maxWidth: w * 0.7),
+                    constraints: BoxConstraints(maxWidth: widget.w * 0.7),
                     decoration: BoxDecoration(
-                        color: messages["sendBy"] ==
+                        color: widget.messages["sendBy"] ==
                                 Auth().auth.currentUser?.displayName
                             ? primaryColor
                             : Colors.white,
@@ -91,9 +117,9 @@ class DisplayTextWidget extends StatelessWidget {
                         )),
                     // elevation: 8.0,
                     child: Text(
-                      messages["text"],
+                      widget.messages["text"],
                       style: TextStyle(
-                        color: messages["sendBy"] ==
+                        color: widget.messages["sendBy"] ==
                                 Auth().auth.currentUser?.displayName
                             ? Colors.white
                             : primaryColor,
@@ -102,8 +128,11 @@ class DisplayTextWidget extends StatelessWidget {
                 UserAvatar(
                     radius: 14,
                     filename: widget.chatType == ChatType.group
-                        ? ""
-                        : widget.objectMap["profileImg"]),
+                        ? userImg.toString()
+                        : widget.messages["sendBy"] ==
+                                Auth().auth.currentUser?.displayName
+                            ? Auth().auth.currentUser?.photoURL
+                            : widget.widget.objectMap["profileImg"]),
                 const SizedBox(
                   width: 5,
                 ),
