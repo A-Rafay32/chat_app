@@ -15,9 +15,10 @@ class ForgetPasswordScreen extends StatelessWidget {
     double w = MediaQuery.sizeOf(context).width;
 
     return Scaffold(
+        backgroundColor: secondaryColor,
         appBar: AppBar(
           elevation: 0,
-          backgroundColor: Colors.white,
+          backgroundColor: secondaryColor,
           leading: IconButton(
               onPressed: () {
                 Navigator.pop(context);
@@ -34,13 +35,15 @@ class ForgetPasswordScreen extends StatelessWidget {
           width: w,
           child: Column(
             children: [
+              SizedBox(
+                height: h * 0.15,
+              ),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Container(
-                  
                   width: w * 0.6,
                   alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text("Forgot",
                       style: Theme.of(context)
                           .textTheme
@@ -53,10 +56,9 @@ class ForgetPasswordScreen extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Container(
-                  
                   width: w * 0.6,
                   alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text("Password?",
                       style: Theme.of(context)
                           .textTheme
@@ -79,8 +81,8 @@ class ForgetPasswordScreen extends StatelessWidget {
                 controller: context.read<Auth>().emailController,
                 hintText: "Email",
               ),
-              const SizedBox(
-                height: 40,
+              SizedBox(
+                height: h * 0.15,
               ),
               GestureDetector(
                 onTap: () {
@@ -105,7 +107,7 @@ class ForgetPasswordScreen extends StatelessWidget {
                       ),
                       child: const Text(
                         "Reset Password",
-                        style: TextStyle(fontSize: 19, color: Colors.white),
+                        style: TextStyle(fontSize: 17, color: Colors.white),
                       ),
                     ),
                   ),

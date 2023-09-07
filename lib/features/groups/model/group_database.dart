@@ -157,11 +157,11 @@ class GroupDB extends Database {
   }
 
   static Future<String?> getUserImage(String userName) async {
-    String? profileImg;
+    String? profileImg = "";
     QuerySnapshot user =
         await Database.usersCollection.where("name", isEqualTo: userName).get();
     profileImg = user.docs.first.get("profileImg");
 
-    return profileImg;
+    return profileImg ?? "";
   }
 }

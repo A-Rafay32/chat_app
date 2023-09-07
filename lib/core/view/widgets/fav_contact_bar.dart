@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../auth/view_model/auth.dart';
 import '../../model/data/database.dart';
 import 'contact_avatar.dart';
 
@@ -50,6 +51,10 @@ class FavContactsBar extends StatelessWidget {
                       return ListView.builder(
                         itemCount: snapshot.data?.docs.length,
                         itemBuilder: (context, index) {
+                          if (snapshot.data?.docs[index]["name"] ==
+                              Auth().auth.currentUser?.displayName) {
+                            return Container();
+                          }
                           return ContactAvatar(
                               name: snapshot.data?.docs[index]["name"],
                               filename: snapshot.data?.docs[index]

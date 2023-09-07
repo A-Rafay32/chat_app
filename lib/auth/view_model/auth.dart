@@ -74,12 +74,15 @@ class Auth extends ChangeNotifier {
           user!.updateDisplayName(nameController.text.trim());
         });
 
+        await auth.currentUser?.updatePhotoURL("");
+
         // Navigator.pushReplacement(
         //     context,
         //     MaterialPageRoute(
         //       builder: (context) => const HomeScreen(),
         //     ));
-
+        
+        signUp(context);
         //pop out of Sign Up Screen
         Navigator.pop(context);
       }
@@ -113,6 +116,6 @@ class Auth extends ChangeNotifier {
     } on FirebaseAuthException catch (e) {
       errorSnackBar(context, e.message);
       print(e);
-    } 
+    }
   }
 }

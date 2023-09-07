@@ -14,6 +14,7 @@ void main() async {
   if (kIsWeb) {
     await Firebase.initializeApp(
         options: FirebaseOptions(
+            
             storageBucket: constants.storageBucket,
             apiKey: constants.apiKey,
             appId: constants.appId,

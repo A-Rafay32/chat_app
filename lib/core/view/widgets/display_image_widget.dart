@@ -53,7 +53,7 @@ class _DisplayImageWidgetState extends State<DisplayImageWidget> {
                       ? userImg.toString()
                       : widget.messages["sendBy"] ==
                               Auth().auth.currentUser?.displayName
-                          ? Auth().auth.currentUser?.photoURL
+                          ? Auth.userMap!["profileImg"]
                           : widget.widget.objectMap["profileImg"]),
               const SizedBox(
                 width: 5,
@@ -124,7 +124,7 @@ class _DisplayImageWidgetState extends State<DisplayImageWidget> {
                       ? userImg.toString()
                       : widget.messages["sendBy"] ==
                               Auth().auth.currentUser?.displayName
-                          ? Auth().auth.currentUser?.photoURL
+                          ? Auth.userMap!["profileImg"]
                           : widget.widget.objectMap["profileImg"]),
             ],
     );

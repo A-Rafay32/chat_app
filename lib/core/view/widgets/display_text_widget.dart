@@ -29,11 +29,10 @@ class DisplayTextWidget extends StatefulWidget {
 }
 
 class _DisplayTextWidgetState extends State<DisplayTextWidget> {
-  String? userImg;
+  String? userImg = "";
 
   void getProfileImage() async {
-    
-    userImg = await GroupDB.getUserImage(widget.messages["sendBy"]);
+    userImg = await GroupDB.getUserImage(widget.messages["sendBy"]) ?? "";
     // return await GroupDB.getUserImage(widget.messages["sendBy"]);
     print("userImg : $userImg");
   }
@@ -67,7 +66,7 @@ class _DisplayTextWidgetState extends State<DisplayTextWidget> {
                         ? userImg.toString()
                         : widget.messages["sendBy"] ==
                                 Auth().auth.currentUser?.displayName
-                            ? Auth().auth.currentUser?.photoURL
+                            ? Auth.userMap!["profileImg"]
                             : widget.widget.objectMap["profileImg"]),
                 const SizedBox(
                   width: 5,
@@ -131,7 +130,7 @@ class _DisplayTextWidgetState extends State<DisplayTextWidget> {
                         ? userImg.toString()
                         : widget.messages["sendBy"] ==
                                 Auth().auth.currentUser?.displayName
-                            ? Auth().auth.currentUser?.photoURL
+                            ? Auth.userMap!["profileImg"]
                             : widget.widget.objectMap["profileImg"]),
                 const SizedBox(
                   width: 5,

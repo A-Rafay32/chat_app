@@ -54,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
             width: w,
             child: Stack(
               children: [
-                Column(
+                const Column(
                   children: [
                     TabNavigationBar(fontSize: fontSize, width: width)
                   ],
@@ -116,11 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         Map<String, dynamic> userMap =
                                             await Database.getUser(snapshot
                                                 .data!.docs[index]["name"]);
-                                        print(Auth()
-                                                .auth
-                                                .currentUser
-                                                ?.displayName ??
-                                            "");
+                                        print(userMap);
 
                                         // generate roomId with them
                                         String roomId = Database.chatRoomId(
